@@ -61,7 +61,7 @@ def tokenizer(knowledgeBase: str) -> List[str]:
                 if token_type:
                     tokens.append(Token(type=token_type, value=token_value))
 
-                position += len(match_found.group()) # Slide the window length of char matched
+                position += len(match_found.group()) # Slide the window by the length of char matched
 
             else:
                 position += 1
@@ -71,6 +71,6 @@ def tokenizer(knowledgeBase: str) -> List[str]:
 
 if __name__ == "__main__":
     # Example usage
-    
+
     formula = "(A <-> B) | C"
     print("Tokens: ", tokenizer(formula))
