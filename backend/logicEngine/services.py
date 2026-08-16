@@ -1,0 +1,81 @@
+import clauses
+import cnf
+import lexer
+import parser
+import resolution
+
+def solve_formula(formula):
+    """
+        Solve a propositional logic formula using resolution.
+        
+        Args:
+            formula (str): Propositional logic formula (e.g., "(A -> B) & A & !B")
+        
+        Returns:
+            dict: Contains tokens, AST, CNF, clauses, resolution steps, and result
+        
+        Raises:
+            ValueError: If formula is invalid or empty
+    """
+    if not formula or not formula.strip():
+        raise ValueError("Formula cannot be empty")
+    
+    try:
+        # Step 1: Tokenize
+        tokens = lexer.tokenizer(formula)
+        
+        # Step 2: Parse to AST
+        parser_instance = parser.Parser(tokens)
+        tree = parser_instance.parse()
+        
+        # Step 3: Convert to CNF
+        cnf_tree = cnf.CnfConverter().convert_to_cnf(tree)
+        
+        # Step 4: Extract clauses
+        clauses_list = clauses.Clauses().extract_clauses(cnf_tree)
+        
+        # Step 5: Apply resolution
+        resolution_engine = resolution.Resolution()
+        result = resolution_engine.resolution(clauses_list)
+        
+        return {
+            "formula": formula,
+            "Tokens": tokens,
+            "AST tree": tree,
+            "CNF": cnf_tree,
+            "clauses": clauses_list,
+            "steps": resolution_engine.resolutionSteps,
+            "result": result
+        }
+    
+    except Exception as e:
+        raise ValueError(f"Error solving formula '{formula}': {str(e)}")
+
+def print_solution(solution):
+    """
+        Solution details.
+    """
+    print(f"Formula: {solution['formula']}")
+    print(f"\nTokens: {solution['Tokens']}")
+    print(f"\nAST Tree: {solution['AST tree']}")
+    print(f"\nCNF: {solution['CNF']}")
+    print(f"\nClauses: {solution['clauses']}")
+    print(f"\nResolution Steps:")
+    
+    for i, step in enumerate(solution['steps'], 1):
+        print(f"  Step {i}: {step}")
+    
+    print(f"Result: {'SATISFIABLE' if solution['result'] else 'UNSATISFIABLE'}")
+    
+if __name__ == '__main__':
+    """
+    Example Usage
+    """
+    # Test cases
+    test_formula = "(A -> B) & A & !B"  # Unsatifiable (contradiction)
+    
+    try:
+        solution = solve_formula(test_formula)
+        print_solution(solution)
+    except ValueError as e:
+        print(f"Error: {e}")
