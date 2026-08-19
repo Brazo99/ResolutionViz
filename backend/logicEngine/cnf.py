@@ -1,6 +1,6 @@
-import abstractSyntaxTree as ast
-import lexer
-import parser
+from .import abstractSyntaxTree as ast
+from .import lexer
+from .import parser
 
 class CnfConverter:
     """

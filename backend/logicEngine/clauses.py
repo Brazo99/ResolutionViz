@@ -2,10 +2,10 @@
     AND separates clauses, while OR combines literals within a clause.
 """
 from typing import List, Set, Tuple, Union
-import abstractSyntaxTree as ast
-import cnf
-import lexer
-import parser
+from .import abstractSyntaxTree as ast
+from .import cnf
+from .import lexer
+from .import parser
 
 class Clauses:
     def __init__(self) -> None:

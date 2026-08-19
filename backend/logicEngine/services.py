@@ -1,8 +1,8 @@
-import clauses
-import cnf
-import lexer
-import parser
-import resolution
+from .import clauses
+from .import cnf
+from .import lexer
+from .import parser
+from .import resolution
 
 def solve_formula(formula):
     """
@@ -40,9 +40,9 @@ def solve_formula(formula):
         
         return {
             "formula": formula,
-            "Tokens": tokens,
-            "AST tree": tree,
-            "CNF": cnf_tree,
+            "tokens": tokens,
+            "ast": tree,
+            "cnf": cnf_tree,
             "clauses": clauses_list,
             "steps": resolution_engine.resolutionSteps,
             "result": result

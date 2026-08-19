@@ -1,8 +1,8 @@
-from typing import List, Set, Tuple, FrozenSet, Optional, Dict, Any
-import clauses
-import cnf
-import lexer
-import parser
+from typing import List, Set, Tuple, FrozenSet, Dict, Any
+from .import clauses
+from .import cnf
+from .import lexer
+from .import parser
 
 class Resolution:
     """
