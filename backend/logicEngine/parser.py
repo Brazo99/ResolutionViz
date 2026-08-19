@@ -1,5 +1,5 @@
-import abstractSyntaxTree as ast
-import lexer
+from .import abstractSyntaxTree as ast
+from .import lexer
 
 class Parser:
     """
