@@ -1,0 +1,37 @@
+from typing import List, Set, Tuple, FrozenSet
+from pydantic import BaseModel, Field
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from logicEngine import abstractSyntaxTree as ast
+
+# Request Model
+class FormulaRequest(BaseModel):
+    formula: str = Field(
+        ...,
+        description="KnowledgeBase logic formula",
+        examples=["(A -> B) & A & !B"],
+        min_length=1
+    )
+    
+class ResolutionStep(BaseModel):
+    step: int
+    clause1: FrozenSet[Tuple[str, bool]]
+    clause2: FrozenSet[Tuple[str, bool]]
+    pivot: str
+    resolvent: FrozenSet[Tuple[str, bool]]
+
+class TokenResponse(BaseModel):
+    type: str
+    value: str
+
+# Response Model 
+class SolutionResponse(BaseModel):
+    formula: str
+    tokens: List[TokenResponse]
+    ast: ast.ASTNode
+    cnf: ast.ASTNode
+    clauses: List[FrozenSet[Tuple[str, bool]]]
+    steps: List[ResolutionStep]
+    result: bool
