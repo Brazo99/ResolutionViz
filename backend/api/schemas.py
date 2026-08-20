@@ -1,4 +1,4 @@
-from typing import List, Set, Tuple, FrozenSet
+from typing import List, Tuple, FrozenSet, Literal
 from pydantic import BaseModel, Field
 import sys
 import os
@@ -14,7 +14,26 @@ class FormulaRequest(BaseModel):
         examples=["(A -> B) & A & !B"],
         min_length=1
     )
-    
+
+class ASTResponse(BaseModel):
+    """
+        Represents the JSON-compatible representation of an AST node
+        returned by the API.
+    """
+     
+    type: Literal[
+        "Variable",
+        "And",
+        "Or",
+        "Not",
+        "Implies",
+        "Iff"
+    ]
+    left: "ASTResponse | None" = None
+    right: "ASTResponse | None" = None
+    operand: "ASTResponse | None" = None
+    name: str | None = None
+
 class ResolutionStep(BaseModel):
     step: int
     clause1: FrozenSet[Tuple[str, bool]]
@@ -30,8 +49,8 @@ class TokenResponse(BaseModel):
 class SolutionResponse(BaseModel):
     formula: str
     tokens: List[TokenResponse]
-    ast: ast.ASTNode
-    cnf: ast.ASTNode
+    ast: ASTResponse
+    cnf: ASTResponse
     clauses: List[FrozenSet[Tuple[str, bool]]]
     steps: List[ResolutionStep]
     result: bool
