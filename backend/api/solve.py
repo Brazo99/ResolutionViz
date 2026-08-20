@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from schemas import FormulaRequest, SolutionResponse
+import serializers
 import sys
 import os
 
@@ -12,7 +13,17 @@ router = APIRouter()
 
 async def solve_endpoint(request: FormulaRequest):
     try:
-        return services.solve_formula(request.formula)
+        result = services.solve_formula(request.formula)
+
+        return {
+            "formula": result["formula"],
+            "tokens": result["tokens"],
+            "ast": serializers.serialize_ast(result["ast"]),
+            "cnf": serializers.serialize_ast(result["cnf"]),
+            "clauses": result["clauses"],
+            "steps": result["steps"],
+            "result": result["result"]
+        }
     
     except ValueError as e:
         raise HTTPException(
