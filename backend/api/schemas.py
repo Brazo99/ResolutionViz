@@ -54,3 +54,4 @@ class SolutionResponse(BaseModel):
     clauses: List[FrozenSet[Tuple[str, bool]]]
     steps: List[ResolutionStep]
     result: bool
+    is_satisfiable: str

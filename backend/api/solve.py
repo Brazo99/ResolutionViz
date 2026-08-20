@@ -22,7 +22,8 @@ async def solve_endpoint(request: FormulaRequest):
             "cnf": serializers.serialize_ast(result["cnf"]),
             "clauses": result["clauses"],
             "steps": result["steps"],
-            "result": result["result"]
+            "result": result["result"],
+            "is_satisfiable": "SATISFIABLE" if result["result"] else "UNSATISFIABLE"
         }
     
     except ValueError as e:
