@@ -8,7 +8,8 @@ import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ProofTreePanel from "../components/ProofTree/ProofTreePanel";
 import PlaybackControls from "../components/ProofTree/PlaybackControls";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from 'axios';
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
@@ -16,10 +17,6 @@ export default function ResolutionPage() {
   const [knowledgeBase, setKnowledgeBase] = useState("");
 
   const [query, setQuery] = useState("");
-
-  function handleProveContradiction() {
-    console.log("Query:", query);
-  }
 
   function handleCheckSatisfiability() {
 
@@ -71,7 +68,6 @@ export default function ResolutionPage() {
             <QueryGoal 
               value={query} 
               onChange={setQuery} 
-              onProve={handleProveContradiction}
             />
 
             {/* Satisfiability Button */}
