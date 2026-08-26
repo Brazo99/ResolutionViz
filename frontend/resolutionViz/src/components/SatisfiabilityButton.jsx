@@ -1,9 +1,9 @@
 export default function SatisfiabilityButton({
-  onCheck
+  onClick
 }) {
   return (
     <button
-      onClick={onCheck}
+      onClick={onClick}
       className="btn btn-primary h-14 w-full rounded-2xl text-xl"
     >
       <span className="text-2xl">▷</span>
