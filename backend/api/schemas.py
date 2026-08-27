@@ -22,6 +22,13 @@ class FormulaRequest(BaseModel):
         min_length=1
     )
 
+    goal: str = Field(
+        ...,
+        description="Query Goal",
+        examples=["!A"],
+        min_length=1
+    )
+
 class ASTResponse(BaseModel):
     """
         Represents the JSON-compatible representation of an AST node
