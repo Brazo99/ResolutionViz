@@ -2,7 +2,6 @@
     AND separates clauses, while OR combines literals within a clause.
 """
 from typing import List, Set, Tuple, FrozenSet
-import abstractSyntaxTree as ast
 from .import abstractSyntaxTree as ast
 from .import cnf
 from .import lexer
