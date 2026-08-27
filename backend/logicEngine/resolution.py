@@ -78,8 +78,11 @@ class Resolution:
             Returns:
                 True if the clause is a tautology, False otherwise
         """
-        positives = []
-        negatives = []
+        for variable, negated in clause:
+            seen = set()
+            if (variable, not negated) in seen:
+                return True
+            seen.add((variable, negated))
 
         for literal, is_negated in clause:
             if is_negated:
