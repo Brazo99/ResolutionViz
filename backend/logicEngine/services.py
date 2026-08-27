@@ -4,12 +4,13 @@ from .import lexer
 from .import parser
 from .import resolution
 
-def solve_formula(formula):
+def solve_formula(formula, target: str):
     """
         Solve a propositional logic formula using resolution.
         
         Args:
             formula (str): Propositional logic formula (e.g., "(A -> B) & A & !B")
+            target (str): Specified goal e.g A
         
         Returns:
             dict: Contains tokens, AST, CNF, clauses, resolution steps, and result
@@ -19,6 +20,9 @@ def solve_formula(formula):
     """
     if not formula or not formula.strip():
         raise ValueError("Formula cannot be empty")
+
+    if not target or not target.strip():
+            raise ValueError("target cannot be empty")
     
     try:
         # Step 1: Tokenize
@@ -32,7 +36,7 @@ def solve_formula(formula):
         cnf_tree = cnf.CnfConverter().convert_to_cnf(tree)
         
         # Step 4: Extract clauses
-        clauses_list = clauses.Clauses().extract_clauses(cnf_tree)
+        clauses_list = clauses.Clauses().extract_sorted_clauses(cnf_tree, target)
         
         # Step 5: Apply resolution
         resolution_engine = resolution.Resolution()
@@ -40,6 +44,7 @@ def solve_formula(formula):
         
         return {
             "formula": formula,
+            "goal": target,
             "tokens": tokens,
             "ast": tree,
             "cnf": cnf_tree,
