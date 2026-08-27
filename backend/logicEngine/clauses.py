@@ -1,7 +1,8 @@
 """
     AND separates clauses, while OR combines literals within a clause.
 """
-from typing import List, Set, Tuple, Union
+from typing import List, Set, Tuple, FrozenSet
+import abstractSyntaxTree as ast
 from .import abstractSyntaxTree as ast
 from .import cnf
 from .import lexer
@@ -75,15 +76,20 @@ class Clauses:
 
         raise TypeError(f"Invalid node in clause: {type(node).__name__}")
 
+    def extract_sorted_clauses(self, node: ast.ASTNode, target: str) -> List[FrozenSet[Tuple[str, bool]]]:
+        clauses = self.extract_clauses(node)
+        clauses.sort(key=lambda c: 0 if any(var == target for var, _ in c) else 1)
+        return clauses
+    
 if __name__=='__main__':
     """
         Example Usage
     """
     formula = "(A <-> B)"
-    
+    """"
     tokens = lexer.tokenizer(formula)
     parser = parser.Parser(tokens)
     tree = parser.parse()
     cnf_tree = cnf.CnfConverter().convert_to_cnf(tree)
     clauses = Clauses().extract_clauses(cnf_tree)
-    print(clauses)    
+    print(clauses) """   
