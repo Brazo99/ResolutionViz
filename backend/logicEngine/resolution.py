@@ -15,9 +15,12 @@ class Resolution:
             
             Attributes:
                 resolutionSteps (List[Dict]): List of resolution steps performed during the proof.
+                _seen_resolvents (Set): Track seen resolvents to avoid duplicates
         """
         self.resolutionSteps: List[Dict[str, Any]] = []
         self.step_counter: int = 0
+        self._seen_resolvents: Set[FrozenSet[Tuple[str, bool]]] = set()
+        
 
     def resolve(self, clause1: FrozenSet[Tuple[str, bool]], 
                 clause2: FrozenSet[Tuple[str, bool]]) -> List[FrozenSet[Tuple[str, bool]]]:
@@ -46,10 +49,12 @@ class Resolution:
 
                     resolvent = frozenset(resolvent)
 
-                    if resolvent not in resolvents:
+                    if resolvent not in resolvents and resolvent not in self._seen_resolvents:
                         resolvents.append(resolvent)
+                        self._seen_resolvents.add(resolvent)
+
+                        # Track resolution steps
                         self.step_counter += 1
-                        
                         step = {
                             "step": self.step_counter,
                             "clause1": clause1,
@@ -61,7 +66,7 @@ class Resolution:
 
         return resolvents
 
-    def is_tautology(self, clause: frozenset[Tuple[str, bool]]) -> bool:
+    def is_tautology(self, clause: FrozenSet[Tuple[str, bool]]) -> bool:
         """
             Check if a clause is a tautology.
             
@@ -74,8 +79,10 @@ class Resolution:
                 True if the clause is a tautology, False otherwise
         """
         for variable, negated in clause:
-            if (variable, not negated) in clause:
+            seen = set()
+            if (variable, not negated) in seen:
                 return True
+            seen.add((variable, negated))
 
         return False
 
@@ -113,7 +120,7 @@ class Resolution:
                             return False
 
                         # Add new clause if not already present
-                        if resolvent not in clauses:
+                        if resolvent not in clause_set:
                             new_clauses.add(resolvent)
 
             # If no new clauses generated, satisfiable
@@ -126,13 +133,13 @@ if __name__=='__main__':
     """
         Example Usage
     """
-    formula = "(A -> B) & A & !B"
+    formula = "(A | B) & (!A | B) & (A | !B) & (!A | !B)"
     
     tokens = lexer.tokenizer(formula)
     parser_instance = parser.Parser(tokens)
     tree = parser_instance.parse()
     cnf_tree = cnf.CnfConverter().convert_to_cnf(tree)
-    clauses_list = clauses.Clauses().extract_clauses(cnf_tree)
+    clauses_list = clauses.Clauses().extract_sorted_clauses(cnf_tree, "B")
 
     print("AST tree: ", tree)
     print("CNF: ", cnf_tree)
