@@ -9,14 +9,15 @@ from logicEngine import services
 
 router = APIRouter()
 
-@router.post("/", response_model= SolutionResponse)
+@router.post("/checkSatisfiability", response_model= SolutionResponse)
 
 async def solve_endpoint(request: FormulaRequest):
     try:
-        result = services.solve_formula(request.formula)
+        result = services.solve_formula(request.formula, request.goal)
 
         return {
             "formula": result["formula"],
+            "goal": result["goal"],
             "tokens": result["tokens"],
             "ast": serializers.serialize_ast(result["ast"]),
             "cnf": serializers.serialize_ast(result["cnf"]),
