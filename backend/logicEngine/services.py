@@ -78,9 +78,10 @@ if __name__ == '__main__':
     """
     # Test cases
     test_formula = "(A -> B) & A & !B"  # Unsatifiable (contradiction)
+    target = "A"
     
     try:
-        solution = solve_formula(test_formula)
+        solution = solve_formula(test_formula, target)
         print_solution(solution)
     except ValueError as e:
         print(f"Error: {e}")
