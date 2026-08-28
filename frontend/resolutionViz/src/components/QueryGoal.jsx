@@ -16,7 +16,7 @@ export default function QueryGoal({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Enter Goal e,g !A"
+          placeholder="Enter Goal e,g A"
           className="
             min-w-0
             flex-1
