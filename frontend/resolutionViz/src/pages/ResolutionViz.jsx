@@ -8,28 +8,29 @@ import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ProofTreePanel from "../components/ProofTree/ProofTreePanel";
 import PlaybackControls from "../components/ProofTree/PlaybackControls";
 
-import { useState, useEffect } from "react";
-import axios from 'axios';
+import { checkSatisfiability } from "../api/resolution";
+
+import { useState} from "react";;
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
 
   const [knowledgeBase, setKnowledgeBase] = useState("");
 
-  const [query, setQuery] = useState("");
+  const [goal, setGoal] = useState("");
 
-  function handleCheckSatisfiability() {
-
-    const request = {
-      annotations,
-      knowledgebase: knowledgeBase,
-      query,
-    };
-
-    console.log("Sending request:", request);
-
-  }
-
+  const handleCheckSatisfiability = async () => {
+    try {
+      const result = await checkSatisfiability(
+        knowledgeBase,
+        goal
+      );
+      
+      console.log(result);
+    } catch (error) {
+      console.error("Resolution failed:", error);
+    }
+  };
 
   return (
     <>
@@ -66,8 +67,8 @@ export default function ResolutionPage() {
 
             {/* Query Goal */}
             <QueryGoal 
-              value={query} 
-              onChange={setQuery} 
+              value={goal} 
+              onChange={setGoal} 
             />
 
             {/* Satisfiability Button */}
