@@ -25,7 +25,7 @@ class FormulaRequest(BaseModel):
     goal: str = Field(
         ...,
         description="Query Goal",
-        examples=["!A"],
+        examples=["A"],
         min_length=1
     )
 
