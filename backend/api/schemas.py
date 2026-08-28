@@ -8,17 +8,17 @@ from logicEngine import abstractSyntaxTree as ast
 
 # Request Model
 class FormulaRequest(BaseModel):
-    formula: str = Field(
+    formula: list[str] = Field(
         ...,
         description="KnowledgeBase logic formula",
-        examples=["(A -> B) & A & !B"],
+        examples=["(A -> B) & A & !B", "(!A | B)"],
         min_length=1
     )
 
     goal: str = Field(
         ...,
         description="Query Goal",
-        examples=["!A"],
+        examples=["A"],
         min_length=1
     )
 
