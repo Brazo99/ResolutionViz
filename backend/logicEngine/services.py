@@ -71,7 +71,10 @@ def print_solution(solution):
         print(f"  Step {i}: {step}")
     
     print(f"Result: {'SATISFIABLE' if solution['result'] else 'UNSATISFIABLE'}")
-    
+
+def combine_knowledge_base(knowledgeBase: list[str]) -> str:
+    return " & ".join(f"({formula.strip()})" for formula in knowledgeBase if formula.strip())
+
 if __name__ == '__main__':
     """
     Example Usage
