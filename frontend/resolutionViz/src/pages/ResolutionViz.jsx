@@ -11,6 +11,9 @@ import PlaybackControls from "../components/ProofTree/PlaybackControls";
 import { checkSatisfiability } from "../api/resolution";
 
 import { useState} from "react";;
+import { checkSatisfiability } from "../api/resolution";
+
+import { useState} from "react";;
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
@@ -19,22 +22,18 @@ export default function ResolutionPage() {
 
   const [query, setQuery] = useState("");
 
-  function handleProveContradiction() {
-    console.log("Query:", query);
-  }
-
-  function handleCheckSatisfiability() {
-
-    const request = {
-      annotations,
-      knowledgebase: knowledgeBase,
-      query,
-    };
-
-    console.log("Sending request:", request);
-
-  }
-
+  const handleCheckSatisfiability = async () => {
+    try {
+      const result = await checkSatisfiability(
+        knowledgeBase,
+        goal
+      );
+      
+      console.log(result);
+    } catch (error) {
+      console.error("Resolution failed:", error);
+    }
+  };
 
   return (
     <>
@@ -73,7 +72,6 @@ export default function ResolutionPage() {
             <QueryGoal 
               value={query} 
               onChange={setQuery} 
-              onProve={handleProveContradiction}
             />
 
             {/* Satisfiability Button */}
