@@ -1,0 +1,69 @@
+from backend.logicEngine.lexer import tokenizer
+from backend.logicEngine.parser import Parser
+from backend.logicEngine.cnf import CnfConverter
+from backend.logicEngine import abstractSyntaxTree as ast
+
+
+def convert_formula(formula: str) -> ast.ASTNode:
+    """
+    Helper function used by the tests.
+    Takes a formula string and runs it through:
+    1. Lexer
+    2. Parser
+    3. CNF converter
+    Returns the resulting CNF AST.
+    """
+    tokens = tokenizer(formula)
+    tree = Parser(tokens).parse()
+    return CnfConverter().convert_to_cnf(tree)
+
+
+def test_implication_is_eliminated():
+    result = convert_formula("A -> B")
+    assert isinstance(result, ast.Or)
+    assert isinstance(result.left, ast.Not)
+    assert isinstance(result.left.operand, ast.Variable)
+    assert result.left.operand.name == "A"
+    assert isinstance(result.right, ast.Variable)
+    assert result.right.name == "B"
+
+
+def test_double_negation_is_removed():
+    result = convert_formula("!!A")
+    assert isinstance(result, ast.Variable)
+    assert result.name == "A"
+
+
+def test_de_morgan_and_becomes_or():
+    result = convert_formula("!(A & B)")
+    assert isinstance(result, ast.Or)
+    assert isinstance(result.left, ast.Not)
+    assert isinstance(result.right, ast.Not)
+
+
+def test_de_morgan_or_becomes_and():
+    result = convert_formula("!(A | B)")
+    assert isinstance(result, ast.And)
+    assert isinstance(result.left, ast.Not)
+    assert isinstance(result.right, ast.Not)
+
+
+def test_or_is_distributed_over_and():
+    result = convert_formula("A | (B & C)")
+    assert isinstance(result, ast.And)
+    assert isinstance(result.left, ast.Or)
+    assert isinstance(result.right, ast.Or)
+
+
+def test_iff_is_eliminated():
+    result = convert_formula("A <-> B")
+    assert isinstance(result, ast.And)
+    assert isinstance(result.left, ast.Or)
+    assert isinstance(result.right, ast.Or)
+
+
+def test_existing_cnf_formula_remains_structurally_valid():
+    result = convert_formula("(A | B) & !C")
+    assert isinstance(result, ast.And)
+    assert isinstance(result.left, ast.Or)
+    assert isinstance(result.right, ast.Not)
