@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from schemas import FormulaRequest, SolutionResponse
-import serializers
+from .schemas import FormulaRequest, SolutionResponse
+from . import serializers
 import sys
 import os
 
