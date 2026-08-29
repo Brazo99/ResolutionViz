@@ -78,12 +78,19 @@ class Resolution:
             Returns:
                 True if the clause is a tautology, False otherwise
         """
-        for variable, negated in clause:
-            seen = set()
-            if (variable, not negated) in seen:
-                return True
-            seen.add((variable, negated))
+        positives = []
+        negatives = []
 
+        for literal, is_negated in clause:
+            if is_negated:
+                negatives.append(literal)
+            else:
+                positives.append(literal) 
+                
+        for p in positives:
+            if p in negatives:
+                return True
+                
         return False
 
     def resolution(self, clauses: List[FrozenSet[Tuple[str, bool]]]) -> bool:
