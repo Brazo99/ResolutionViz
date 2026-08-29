@@ -39,14 +39,17 @@ class Parser:
         token = self.current_token
 
         if token is None:
-            raise SyntaxError("Unexpected end of input")
+            raise SyntaxError(
+                f"Unexpected end of input at position {self.position}"
+            )
         
         if token.type != expected_type:
             raise SyntaxError(
-                f"Expected {expected_type}, got {token.type}"
+                f"Expected {expected_type}, got {token.type} "
+                f"at position {self.position}"
             )
-            
-        self.position +=1
+
+        self.position += 1
         return token
 
     def parse(self) -> ast.ASTNode:
@@ -69,7 +72,8 @@ class Parser:
 
         if self.current_token is not None:
             raise SyntaxError(
-                f"Unexpected token: {self.current_token.type}"
+                f"Unexpected token {self.current_token.value!r} "
+                f"({self.current_token.type}) at position {self.position}"
             )
 
         return node
@@ -193,7 +197,9 @@ class Parser:
             token = self.consume("VARIABLE")
             return ast.Variable(token.value)
 
-        raise SyntaxError("Expected variable or '('")
+        raise SyntaxError(
+            f"Expected variable or '(' at position {self.position}"
+        )
 
 if __name__=='__main__':
     formula = "((A -> B) | C) -> D"
