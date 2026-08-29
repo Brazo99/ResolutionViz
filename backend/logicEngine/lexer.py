@@ -1,6 +1,7 @@
 import re
 from typing import List
 from dataclasses import dataclass
+from .errors import LexerError #Used for the error handling
 
 @dataclass
 class Token:
@@ -64,8 +65,12 @@ def tokenizer(knowledgeBase: str) -> List[str]:
                 position += len(match_found.group()) # Slide the window by the length of char matched
 
             else:
-                position += 1
-                print("Error: ", remaining_chars)
+                invalid_character = remaining_chars[0]
+                valid_symbols = "(, ), ->, &, !, <->, |, or variables [A-Z]"
+                raise LexerError(
+                    f"Unexpected character {invalid_character!r} at position {position}. Valid tokens are: {valid_symbols}.",
+                    position
+                )
 
     return tokens
 
