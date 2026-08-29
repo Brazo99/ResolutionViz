@@ -22,6 +22,9 @@ def tokenizer(knowledgeBase: str) -> List[str]:
             List: list of Token objects
     """
 
+    if not knowledgeBase:
+        raise ValueError("KnowledgeBase cannot be empty.")
+    
     # Defined tokens patterns to find
     TOKEN_PATTERNS = [
         ("LPAREN", r"\("),
