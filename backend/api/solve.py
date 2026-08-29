@@ -13,7 +13,8 @@ router = APIRouter()
 
 async def solve_endpoint(request: FormulaRequest):
     try:
-        result = services.solve_formula(request.formula, request.goal)
+        formula = services.combine_knowledge_base(request.formula)
+        result = services.solve_formula(formula, request.goal)
 
         return {
             "formula": result["formula"],
