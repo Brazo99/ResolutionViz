@@ -1,6 +1,7 @@
 import pytest
 from backend.logicEngine.services import solve_formula
 from backend.logicEngine.services import combine_knowledge_base
+from backend.logicEngine.services import add_negated_goal
 
 
 def test_unsatisfiable_formula_is_detected():
@@ -63,35 +64,40 @@ def test_combine_knowledge_base_strips_whitespace():
     assert result == "(A) & (A -> B)"
 
 
-def test_combine_knowledge_base_ignores_blank_entries():
-    result = combine_knowledge_base([
-        "A",
-        "",
-        "   ",
-        "B",
-    ])
+def test_combine_knowledge_base_rejects_blank_entries():
+    with pytest.raises(ValueError):
+        combine_knowledge_base([
+            "A",
+            "",
+            "   ",
+            "B",
+        ])
 
-    assert result == "(A) & (B)"
 
-
-def test_combine_knowledge_base_returns_empty_string_for_all_blank_entries():
-    result = combine_knowledge_base([
-        "",
-        "   ",
-    ])
-
-    assert result == ""
+def test_combine_knowledge_base_rejects_all_blank_entries():
+    with pytest.raises(ValueError):
+        combine_knowledge_base([
+            "",
+            "   ",
+        ])
 
 
 def test_empty_knowledge_base_is_rejected():
-    combined = combine_knowledge_base([])
-
-    with pytest.raises(ValueError, match="Formula cannot be empty"):
-        solve_formula(combined, "A")
+    with pytest.raises(ValueError):
+        combine_knowledge_base([])
 
 
 def test_blank_knowledge_base_is_rejected():
-    combined = combine_knowledge_base(["", "   "])
+    with pytest.raises(ValueError):
+        combine_knowledge_base(["", "   "])
 
-    with pytest.raises(ValueError, match="Formula cannot be empty"):
-        solve_formula(combined, "A")
+
+def test_negated_goal_is_added_to_knowledge_base():
+    combined = combine_knowledge_base([
+        "A",
+        "A -> B",
+    ])
+
+    result = add_negated_goal(combined, "B")
+
+    assert result == "(A) & (A -> B) & !B"

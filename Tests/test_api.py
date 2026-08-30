@@ -102,4 +102,24 @@ def test_multiple_knowledge_base_statements_are_accepted():
     body = response.json()
 
     assert body["goal"] == "B"
-    assert body["formula"] == "(A) & (A -> B)"
+    assert body["formula"] == "(A) & (A -> B) & !B"
+
+
+def test_goal_is_negated_before_resolution():
+    response = client.post(
+        "/checkSatisfiability",
+        json={
+            "formula": [
+                "A",
+                "A -> B",
+            ],
+            "goal": "B",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["goal"] == "B"
+    assert "!B" in body["formula"]

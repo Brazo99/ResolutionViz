@@ -22,7 +22,7 @@ def solve_formula(formula, target: str):
         raise ValueError("Formula cannot be empty")
 
     if not target or not target.strip():
-            raise ValueError("target cannot be empty")
+        raise ValueError("target cannot be empty")
     
     try:
         # Step 1: Tokenize
@@ -73,7 +73,31 @@ def print_solution(solution):
     print(f"Result: {'SATISFIABLE' if solution['result'] else 'UNSATISFIABLE'}")
 
 def combine_knowledge_base(knowledgeBase: list[str]) -> str:
-    return " & ".join(f"({formula.strip()})" for formula in knowledgeBase if formula.strip())
+    if not knowledgeBase:
+        raise ValueError("Knowledge base cannot be empty")    
+    for f in knowledgeBase:
+        if type(f) is not str or f.strip() == "":
+            raise ValueError("All items must be non-empty strings")
+    return " & ".join(f"({formula.strip()})" for formula in knowledgeBase)
+
+def add_negated_goal(formula: str, target: str) -> str:
+    """
+    Add the negated goal to the combined knowledge base (KB AND NOT(goal)).
+        The goal is currently defined as a single DSL variable.
+    Args:
+        formula (str): The combined knowledge base formula.
+        target (str): The goal to be negated and added to the formula.
+    
+    Returns:
+        str: The new formula with the negated goal added.
+    """
+    if not formula or not formula.strip():
+        raise ValueError("Formula cannot be empty")
+
+    if not target or not target.strip():
+        raise ValueError("target cannot be empty")
+
+    return f"{formula.strip()} & !{target.strip()}"
 
 if __name__ == '__main__':
     """

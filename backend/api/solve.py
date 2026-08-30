@@ -14,6 +14,7 @@ router = APIRouter()
 async def solve_endpoint(request: FormulaRequest):
     try:
         formula = services.combine_knowledge_base(request.formula)
+        formula = services.add_negated_goal(formula, request.goal)
         result = services.solve_formula(formula, request.goal)
 
         return {
