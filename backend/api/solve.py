@@ -1,5 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
-from .schemas import FormulaRequest, SolutionResponse
+from .schemas import FormulaRequest, SolutionResponse 
+from .schemas import SingleFormulaRequest, FormulaValidationResponse
+from ..logicEngine import lexer
+from ..logicEngine.parser import Parser
+from ..logicEngine.errors import LexerError, ParserError
 from . import serializers
 import sys
 import os
@@ -39,3 +43,32 @@ async def solve_endpoint(request: FormulaRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}"
         )
+
+@router.post("/checkFormula", response_model=FormulaValidationResponse)
+
+async def check_formula(request: SingleFormulaRequest):
+    """
+    Validate one propositional logic formula using the lexer and parser.
+    Args:
+        request: A SingleFormulaRequest object containing the formula to validate.
+    returns:
+        A FormulaValidationResponse object indicating whether the formula is valid,
+    """
+    try:
+        tokens = lexer.tokenizer(request.formula)
+        Parser(tokens).parse()
+
+        return {
+            "valid": True,
+            "tokens": tokens,
+            "error": None,
+            "position": None,
+        }
+
+    except (LexerError, ParserError) as error:
+        return {
+            "valid": False,
+            "tokens": [],
+            "error": str(error),
+            "position": error.position,
+        }
