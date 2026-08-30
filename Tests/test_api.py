@@ -50,6 +50,16 @@ def test_empty_formula_list_is_rejected():
 
     assert response.status_code in (400, 422)
 
+def test_formula_must_be_a_list():
+    response = client.post(
+        "/checkSatisfiability",
+        json={
+            "formula": "A",
+            "goal": "A",
+        },
+    )
+
+    assert response.status_code in (400, 422)
 
 def test_empty_goal_is_rejected():
     response = client.post(
@@ -73,3 +83,23 @@ def test_invalid_dsl_input_is_rejected():
     )
 
     assert response.status_code in (400, 422)
+
+
+def test_multiple_knowledge_base_statements_are_accepted():
+    response = client.post(
+        "/checkSatisfiability",
+        json={
+            "formula": [
+                "A",
+                "A -> B",
+            ],
+            "goal": "B",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["goal"] == "B"
+    assert body["formula"] == "(A) & (A -> B)"
