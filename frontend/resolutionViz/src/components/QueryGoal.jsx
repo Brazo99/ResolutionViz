@@ -16,11 +16,7 @@ export default function QueryGoal({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-<<<<<<< HEAD
           placeholder="Enter Goal e,g A"
-=======
-          placeholder="Enter Goal e,g !A"
->>>>>>> b5cb877 (feat(frontend-layout): implement the unresponsive UI layout)
           className="
             min-w-0
             flex-1
