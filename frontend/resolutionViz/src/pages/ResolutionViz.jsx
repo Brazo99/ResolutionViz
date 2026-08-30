@@ -17,20 +17,24 @@ export default function ResolutionPage() {
 
   const [knowledgeBase, setKnowledgeBase] = useState("");
 
-  const [goal, setGoal] = useState("");
+  const [query, setQuery] = useState("");
 
-  const handleCheckSatisfiability = async () => {
-    try {
-      const result = await checkSatisfiability(
-        knowledgeBase,
-        goal
-      );
-      
-      console.log(result);
-    } catch (error) {
-      console.error("Resolution failed:", error);
-    }
-  };
+  function handleProveContradiction() {
+    console.log("Query:", query);
+  }
+
+  function handleCheckSatisfiability() {
+
+    const request = {
+      annotations,
+      knowledgebase: knowledgeBase,
+      query,
+    };
+
+    console.log("Sending request:", request);
+
+  }
+
 
   return (
     <>
@@ -67,8 +71,9 @@ export default function ResolutionPage() {
 
             {/* Query Goal */}
             <QueryGoal 
-              value={goal} 
-              onChange={setGoal} 
+              value={query} 
+              onChange={setQuery} 
+              onProve={handleProveContradiction}
             />
 
             {/* Satisfiability Button */}
