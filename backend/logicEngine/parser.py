@@ -1,5 +1,6 @@
 from .import abstractSyntaxTree as ast
 from .import lexer
+from .errors import ParserError
 
 class Parser:
     """
@@ -39,14 +40,15 @@ class Parser:
         token = self.current_token
 
         if token is None:
-            raise SyntaxError(
-                f"Unexpected end of input at position {self.position}"
+            raise ParserError(
+                f"Unexpected end of input at position {self.position}",
+                position=self.position
             )
         
         if token.type != expected_type:
-            raise SyntaxError(
-                f"Expected {expected_type}, got {token.type} "
-                f"at position {self.position}"
+            raise ParserError(
+                f"Expected {expected_type}, got {token.type} at position {self.position}",
+                position=self.position
             )
 
         self.position += 1
@@ -65,15 +67,15 @@ class Parser:
                 'iff' expression.
 
             Raises:
-                SyntaxError: If any tokens remain unconsumed after parsing the
+                ParserError: If any tokens remain unconsumed after parsing the
                 'iff' expression, indicating invalid or extra input.
         """
         node =  self.parse_iff()
 
         if self.current_token is not None:
-            raise SyntaxError(
-                f"Unexpected token {self.current_token.value!r} "
-                f"({self.current_token.type}) at position {self.position}"
+            raise ParserError(
+                f"Unexpected token {self.current_token.value!r} ({self.current_token.type}) at position {self.position}",
+                position=self.position
             )
 
         return node
@@ -197,8 +199,9 @@ class Parser:
             token = self.consume("VARIABLE")
             return ast.Variable(token.value)
 
-        raise SyntaxError(
-            f"Expected variable or '(' at position {self.position}"
+        raise ParserError(
+            f"Expected variable '!' or '(' at position {self.position}",
+            position=self.position
         )
 
 if __name__=='__main__':
