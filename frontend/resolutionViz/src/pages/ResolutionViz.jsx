@@ -5,8 +5,7 @@ import KnowledgeBase from "../components/KnowledgeBase";
 import QueryGoal from "../components/QueryGoal";
 import SatisfiabilityButton from "../components/SatisfiabilityButton";
 
-import ProofTreePanel from "../components/ProofTree/ProofTreePanel";
-import PlaybackControls from "../components/ProofTree/PlaybackControls";
+import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
 
 import { checkSatisfiability } from "../api/resolution";
 
@@ -14,10 +13,11 @@ import { useState} from "react";;
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
-
   const [knowledgeBase, setKnowledgeBase] = useState("");
-
   const [goal, setGoal] = useState("");
+
+  // Store the backend response
+  const [resolutionResult, setResolutionResult] = useState(null);
 
   const handleCheckSatisfiability = async () => {
     try {
@@ -27,6 +27,7 @@ export default function ResolutionPage() {
       );
       
       console.log(result);
+      setResolutionResult(result);
     } catch (error) {
       console.error("Resolution failed:", error);
     }
@@ -76,15 +77,13 @@ export default function ResolutionPage() {
           </aside>
 
           {/* RIGHT PANEL */}
-          <section className="grid h-full grid-rows-[1fr_auto_auto] gap-5 overflow-hidden bg-slate-900 p-5">
+          <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-900 p-5">
           {/* Proof tree - fills space */}
-          <div className="min-h-0">
-            <ProofTreePanel />
-          </div>
-          
-          {/* Playback */}
-          <PlaybackControls />
-          
+            <div className="min-h-0">
+              <ResolutionPanel 
+                result={resolutionResult}
+              />
+            </div>
           </section>
                   
         </div>
