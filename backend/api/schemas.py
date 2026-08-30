@@ -52,6 +52,22 @@ class TokenResponse(BaseModel):
     type: str
     value: str
 
+class SingleFormulaRequest(BaseModel):
+    """Request model for validating one DSL formula."""
+    formula: str = Field(
+        ...,
+        description="A single propositional logic formula.",
+        examples=["A -> B"],
+        min_length=1,
+    )
+
+class FormulaValidationResponse(BaseModel):
+    """Response returned by the formula validation endpoint."""
+    valid: bool
+    tokens: List[TokenResponse]
+    error: str | None = None
+    position: int | None = None
+
 # Response Model 
 class SolutionResponse(BaseModel):
     formula: str
