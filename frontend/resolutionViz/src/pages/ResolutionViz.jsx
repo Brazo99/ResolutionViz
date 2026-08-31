@@ -4,26 +4,38 @@ import AnnotationsPanel from "../components/AnnotationsPanel";
 import KnowledgeBase from "../components/KnowledgeBase";
 import QueryGoal from "../components/QueryGoal";
 import SatisfiabilityButton from "../components/SatisfiabilityButton";
-
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
-
-import { useState} from "react";;
+import { useState, useEffect } from "react";
 import { checkSatisfiability } from "../api/resolution";
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [goal, setGoal] = useState("");
-
-  // Store the backend response
   const [resolutionResult, setResolutionResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Handle importing KB - converts array of lines to string
-  const handleImportKB = (lines) => {
-    setKnowledgeBase(lines.join('\n'));
+  // ===== HELPER FUNCTIONS =====
+
+  // Validate formula for balanced parentheses
+  const validateFormula = (formula) => {
+    let count = 0;
+    for (const char of formula) {
+      if (char === '(') count++;
+      if (char === ')') count--;
+      if (count < 0) return false;
+    }
+    return count === 0;
   };
 
-  // Handle exporting KB
+  // ===== IMPORT / EXPORT HANDLERS =====
+
+  const handleImportKB = (lines) => {
+    setKnowledgeBase(lines.join('\n'));
+    setError(null);
+  };
+
   const handleExportKB = () => {
     if (!knowledgeBase || knowledgeBase.trim() === '') {
       alert('Knowledge base is empty. Nothing to export.');
@@ -33,7 +45,7 @@ export default function ResolutionPage() {
     const lines = knowledgeBase.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
-    
+
     const content = lines.join('\n');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -46,46 +58,112 @@ export default function ResolutionPage() {
     URL.revokeObjectURL(url);
   };
 
+  // ===== CHECK SATISFIABILITY =====
+
   const handleCheckSatisfiability = async () => {
+    // Clear previous results
+    setError(null);
+    setResolutionResult(null);
+
+    // Validate: Knowledge base not empty
+    if (!knowledgeBase || knowledgeBase.trim() === '') {
+      const msg = '❌ Knowledge base cannot be empty.';
+      setError(msg);
+      setAnnotations(msg);
+      return;
+    }
+
+    // Validate: Goal not empty
+    if (!goal || goal.trim() === '') {
+      const msg = '❌ Query goal cannot be empty.';
+      setError(msg);
+      setAnnotations(msg);
+      return;
+    }
+
+    // Validate each formula in knowledge base
+    const formulas = knowledgeBase.split('\n').filter(line => line.trim() !== '');
+    for (const f of formulas) {
+      if (!validateFormula(f.trim())) {
+        const msg = `❌ Invalid formula: "${f.trim()}"\nCheck for unbalanced parentheses.`;
+        setError(msg);
+        setAnnotations(msg);
+        return;
+      }
+    }
+
+    // Validate goal formula
+    if (!validateFormula(goal.trim())) {
+      const msg = `❌ Invalid goal: "${goal.trim()}"\nCheck for unbalanced parentheses.`;
+      setError(msg);
+      setAnnotations(msg);
+      return;
+    }
+
+    setIsLoading(true);
+    setAnnotations('⏳ Checking satisfiability...');
+
     try {
-      const result = await checkSatisfiability(
-        knowledgeBase,
-        goal
-      );
-      
-      console.log(result);
+      const result = await checkSatisfiability(knowledgeBase, goal);
+      console.log("Response from backend:", result);
+
       setResolutionResult(result);
-    } catch (error) {
-      console.error("Resolution failed:", error);
+
+      // Build annotation message
+      let resultMessage = '';
+      if (result.steps && result.steps.length > 0) {
+        resultMessage = `=== Resolution Result ===\n\n`;
+        resultMessage += `Goal: ${goal}\n`;
+        resultMessage += `Result: ${result.is_satisfiable || (result.result ? 'SATISFIABLE' : 'UNSATISFIABLE')}\n`;
+        resultMessage += `Steps: ${result.steps.length} resolution step(s)\n\n`;
+        resultMessage += `--- Resolution Steps ---\n`;
+        result.steps.forEach((step, i) => {
+          resultMessage += `Step ${i + 1}: Resolving clauses on pivot '${step.pivot || '?'}'\n`;
+        });
+        resultMessage += `\n✅ Done.`;
+      } else {
+        resultMessage = `✅ Result: ${result.is_satisfiable || (result.result ? 'SATISFIABLE' : 'UNSATISFIABLE')}`;
+      }
+
+      setAnnotations(resultMessage);
+      setError(null);
+
+    } catch (err) {
+      console.error("Resolution failed:", err);
+      const errorMsg = `❌ Error: ${err.message || 'Failed to check satisfiability. Is the backend running?'}`;
+      setError(errorMsg);
+      setAnnotations(errorMsg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // ===== KEYBOARD SHORTCUTS =====
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl + Enter (or Cmd + Enter on Mac) to check satisfiability
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleCheckSatisfiability();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [knowledgeBase, goal]);
+
+  // ===== RENDER =====
+
   return (
     <>
-      {/*header */}
       <Header />
-
-      {/* Application workspace */}
       <main className="fixed inset-x-0 top-[57px] bottom-0 overflow-hidden bg-slate-900">
         <div className="grid h-full grid-cols-[500px_minmax(0,1fr)]">
           {/* LEFT PANEL */}
-
-          <aside
-            className="
-              grid
-              h-full
-              min-h-0
-              grid-rows-[auto_1fr_auto_auto]
-              gap-3
-              overflow-hidden
-              border-r
-              border-slate-800
-              bg-slate-900
-              p-5
-            "
-          >
-            {/* Toolbar*/}
-            <KBToolbar 
+          <aside className="grid h-full min-h-0 grid-rows-[auto_1fr_auto_auto] gap-3 overflow-hidden border-r border-slate-800 bg-slate-900 p-5">
+            {/* Toolbar */}
+            <KBToolbar
               onImport={handleImportKB}
               onExport={handleExportKB}
               hasContent={knowledgeBase.trim().length > 0}
@@ -93,32 +171,31 @@ export default function ResolutionPage() {
 
             {/* Main editor area */}
             <div className="grid min-h-0 grid-rows-[40%_60%] gap-3">
-              <AnnotationsPanel value={annotations} onChange={setAnnotations}/>
-              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase}/>
+              <AnnotationsPanel value={annotations} onChange={setAnnotations} />
+              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase} />
             </div>
 
             {/* Query Goal */}
-            <QueryGoal 
-              value={goal} 
-              onChange={setGoal} 
-            />
+            <QueryGoal value={goal} onChange={setGoal} />
 
             {/* Satisfiability Button */}
-            <SatisfiabilityButton onClick={handleCheckSatisfiability}/>
+            <SatisfiabilityButton
+              onClick={handleCheckSatisfiability}
+              isLoading={isLoading}
+            />
           </aside>
 
           {/* RIGHT PANEL */}
           <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-900 p-5">
-          {/* Proof tree - fills space */}
             <div className="min-h-0">
-              <ResolutionPanel 
+              <ResolutionPanel
                 result={resolutionResult}
+                error={error}
+                isLoading={isLoading}
               />
             </div>
           </section>
-                  
         </div>
-
       </main>
     </>
   );
