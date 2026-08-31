@@ -21,7 +21,7 @@ class FormulaRequest(BaseModel):
         examples=["A"],
         min_length=1
     )
-
+    
 class ASTResponse(BaseModel):
     """
         Represents the JSON-compatible representation of an AST node

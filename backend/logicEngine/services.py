@@ -23,7 +23,7 @@ def solve_formula(formula, target: str):
         raise ValueError("Formula cannot be empty")
 
     if not target or not target.strip():
-        raise ValueError("target cannot be empty")
+            raise ValueError("target cannot be empty")
     
     try:
         # Step 1: Tokenize
