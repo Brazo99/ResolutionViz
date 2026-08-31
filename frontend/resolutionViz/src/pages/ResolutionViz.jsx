@@ -185,7 +185,7 @@ export default function ResolutionPage() {
             />
           </aside>
 
-          {/* RIGHT PANEL */}
+          {/* RIGHT PANEL*/}
           <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-900 p-5">
             <div className="min-h-0">
               <ResolutionPanel
