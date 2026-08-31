@@ -18,6 +18,34 @@ export default function ResolutionPage() {
   // Store the backend response
   const [resolutionResult, setResolutionResult] = useState(null);
 
+  // Handle importing KB - converts array of lines to string
+  const handleImportKB = (lines) => {
+    setKnowledgeBase(lines.join('\n'));
+  };
+
+  // Handle exporting KB
+  const handleExportKB = () => {
+    if (!knowledgeBase || knowledgeBase.trim() === '') {
+      alert('Knowledge base is empty. Nothing to export.');
+      return;
+    }
+
+    const lines = knowledgeBase.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+    
+    const content = lines.join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'knowledge_base.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleCheckSatisfiability = async () => {
     try {
       const result = await checkSatisfiability(
@@ -57,7 +85,11 @@ export default function ResolutionPage() {
             "
           >
             {/* Toolbar*/}
-            <KBToolbar />
+            <KBToolbar 
+              onImport={handleImportKB}
+              onExport={handleExportKB}
+              hasContent={knowledgeBase.trim().length > 0}
+            />
 
             {/* Main editor area */}
             <div className="grid min-h-0 grid-rows-[40%_60%] gap-3">
