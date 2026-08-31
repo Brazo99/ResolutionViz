@@ -3,6 +3,7 @@ from .import cnf
 from .import lexer
 from .import parser
 from .import resolution
+from .errors import ResVizError
 
 def solve_formula(formula, target: str):
     """
@@ -53,6 +54,8 @@ def solve_formula(formula, target: str):
             "result": result
         }
     
+    except ResVizError:
+        raise
     except Exception as e:
         raise ValueError(f"Error solving formula '{formula}': {str(e)}")
 

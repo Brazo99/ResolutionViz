@@ -1,15 +1,15 @@
 from fastapi import APIRouter, HTTPException, status
 from .schemas import FormulaRequest, SolutionResponse 
 from .schemas import SingleFormulaRequest, FormulaValidationResponse
-from ..logicEngine import lexer
-from ..logicEngine.parser import Parser
-from ..logicEngine.errors import LexerError, ParserError
 from . import serializers
 import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from logicEngine import services
+from logicEngine import lexer
+from logicEngine.parser import Parser
+from logicEngine.errors import ResVizError, LexerError, ParserError
 
 router = APIRouter()
 
@@ -33,7 +33,7 @@ async def solve_endpoint(request: FormulaRequest):
             "is_satisfiable": "SATISFIABLE" if result["result"] else "UNSATISFIABLE"
         }
     
-    except ValueError as e:
+    except (ValueError, ResVizError) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)

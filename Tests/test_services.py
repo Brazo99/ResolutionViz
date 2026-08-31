@@ -2,6 +2,7 @@ import pytest
 from backend.logicEngine.services import solve_formula
 from backend.logicEngine.services import combine_knowledge_base
 from backend.logicEngine.services import add_negated_goal
+from backend.logicEngine.errors import LexerError
 
 
 def test_unsatisfiable_formula_is_detected():
@@ -101,3 +102,7 @@ def test_negated_goal_is_added_to_knowledge_base():
     result = add_negated_goal(combined, "B")
 
     assert result == "(A) & (A -> B) & !B"
+
+def test_lexer_error_is_preserved_by_service():
+    with pytest.raises(LexerError):
+        solve_formula("A @ B", "A")
