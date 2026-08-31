@@ -1,6 +1,13 @@
-import { Download, Upload } from "lucide-react";
+import { Download, Upload, RotateCcw, FileJson } from "lucide-react";
 
-export default function KBToolbar({ onImport, onExport, hasContent = false }) {
+export default function KBToolbar({ 
+  onImport, 
+  onExport, 
+  onReset, 
+  onExportResult, 
+  hasContent = false,
+  hasResult = false 
+}) {
   // Handle Import button click
   const handleImport = () => {
     const fileInput = document.createElement('input');
@@ -32,21 +39,44 @@ export default function KBToolbar({ onImport, onExport, hasContent = false }) {
     if (onExport) onExport();
   };
 
+  // Handle Export Result button click
+  const handleExportResult = () => {
+    if (!hasResult) {
+      alert('No resolution result to export. Please run Check Satisfiability first.');
+      return;
+    }
+    if (onExportResult) onExportResult();
+  };
+
   return (
-    <div className="flex shrink-0 gap-2">
-      <button 
+    <div className="flex shrink-0 gap-2 flex-wrap">
+      <button
         onClick={handleImport}
         className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
       >
         <Upload size={16} />
         Import KB
       </button>
-      <button 
+      <button
         onClick={handleExport}
         className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
       >
         <Download size={16} />
         Export KB
+      </button>
+      <button
+        onClick={handleExportResult}
+        className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+      >
+        <FileJson size={16} />
+        Export Result
+      </button>
+      <button
+        onClick={onReset}
+        className="btn btn-sm border-red-700 bg-red-900/30 text-red-400 hover:bg-red-900/50"
+      >
+        <RotateCcw size={16} />
+        Reset All
       </button>
     </div>
   );
