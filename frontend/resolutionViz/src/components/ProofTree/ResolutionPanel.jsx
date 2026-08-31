@@ -9,6 +9,7 @@ export default function ResolutionPanel({ result }) {
 
       <div className="flex-1 min-h-0 overflow-hidden rounded-xl border border-base-300 bg-base-200">
         <ResolutionGraph 
+          clauses={result?.clauses ?? []}
           steps={result?.steps ?? []}
         />
       </div>
