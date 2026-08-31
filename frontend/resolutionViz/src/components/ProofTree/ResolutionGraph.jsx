@@ -8,8 +8,12 @@ import { useMemo } from "react";
 import '@xyflow/react/dist/style.css';
 import { convertStepsToGraph } from "../../utils/resolutionGraph";
 
-export default function ResolutionGraph({ steps = [] }) {
-  const { nodes, edges } = useMemo( () => convertStepsToGraph(steps), [steps] )
+export default function ResolutionGraph({ clauses = [], steps = [] }) {
+  const { nodes, edges } = useMemo(
+    () => convertStepsToGraph(clauses, steps),
+    [clauses, steps]
+);
+
 
   return (
     <div className="h-full w-full">
@@ -20,7 +24,6 @@ export default function ResolutionGraph({ steps = [] }) {
       >
         <Background />
         <Controls />
-        <MiniMap />
       </ReactFlow>
     </div>
   );
