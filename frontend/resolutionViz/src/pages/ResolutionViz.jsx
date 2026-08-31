@@ -7,12 +7,8 @@ import SatisfiabilityButton from "../components/SatisfiabilityButton";
 
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
 
-import { checkSatisfiability } from "../api/resolution";
-
 import { useState} from "react";;
 import { checkSatisfiability } from "../api/resolution";
-
-import { useState} from "react";;
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
@@ -71,8 +67,8 @@ export default function ResolutionPage() {
 
             {/* Query Goal */}
             <QueryGoal 
-              value={query} 
-              onChange={setQuery} 
+              value={goal} 
+              onChange={setGoal} 
             />
 
             {/* Satisfiability Button */}
