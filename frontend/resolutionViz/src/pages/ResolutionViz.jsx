@@ -29,6 +29,20 @@ export default function ResolutionPage() {
     return count === 0;
   };
 
+  // Get status badge
+  const getStatusBadge = () => {
+    if (isLoading) return { text: '⏳ Running...', className: 'bg-yellow-500/20 text-yellow-400' };
+    if (error) return { text: '❌ Error', className: 'bg-red-500/20 text-red-400' };
+    if (resolutionResult) {
+      const isSatisfiable = resolutionResult.is_satisfiable || resolutionResult.result;
+      return {
+        text: isSatisfiable ? '✅ SATISFIABLE' : '❌ UNSATISFIABLE',
+        className: isSatisfiable ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+      };
+    }
+    return null;
+  };
+
   // ===== IMPORT / EXPORT HANDLERS =====
 
   const handleImportKB = (lines) => {
@@ -56,6 +70,34 @@ export default function ResolutionPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleExportResult = () => {
+    if (!resolutionResult) {
+      alert('No resolution result to export. Please run Check Satisfiability first.');
+      return;
+    }
+    
+    const json = JSON.stringify(resolutionResult, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resolution_result.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleReset = () => {
+    if (confirm('Clear all inputs and results?')) {
+      setKnowledgeBase('');
+      setGoal('');
+      setAnnotations('');
+      setResolutionResult(null);
+      setError(null);
+    }
   };
 
   // ===== CHECK SATISFIABILITY =====
@@ -155,6 +197,8 @@ export default function ResolutionPage() {
 
   // ===== RENDER =====
 
+  const status = getStatusBadge();
+
   return (
     <>
       <Header />
@@ -166,7 +210,10 @@ export default function ResolutionPage() {
             <KBToolbar
               onImport={handleImportKB}
               onExport={handleExportKB}
+              onReset={handleReset}
+              onExportResult={handleExportResult}
               hasContent={knowledgeBase.trim().length > 0}
+              hasResult={!!resolutionResult}
             />
 
             {/* Main editor area */}
@@ -178,14 +225,26 @@ export default function ResolutionPage() {
             {/* Query Goal */}
             <QueryGoal value={goal} onChange={setGoal} />
 
+            {/* Status Badge */}
+            {status && (
+              <div className={`text-center text-sm font-medium py-1 px-3 rounded ${status.className}`}>
+                {status.text}
+              </div>
+            )}
+
             {/* Satisfiability Button */}
             <SatisfiabilityButton
               onClick={handleCheckSatisfiability}
               isLoading={isLoading}
             />
+
+            {/* Keyboard Shortcut Hint */}
+            <div className="text-xs text-slate-500 text-center mt-1">
+              Press Ctrl+Enter to check satisfiability
+            </div>
           </aside>
 
-          {/* RIGHT PANEL*/}
+          {/* RIGHT PANEL */}
           <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-900 p-5">
             <div className="min-h-0">
               <ResolutionPanel
