@@ -17,19 +17,6 @@ export default function ResolutionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ===== HELPER FUNCTIONS =====
-
-  // Validate formula for balanced parentheses
-  const validateFormula = (formula) => {
-    let count = 0;
-    for (const char of formula) {
-      if (char === '(') count++;
-      if (char === ')') count--;
-      if (count < 0) return false;
-    }
-    return count === 0;
-  };
-
   // Get status badge
   const getStatusBadge = () => {
     if (isLoading) return { text: '⏳ Running...', className: 'bg-yellow-500/20 text-yellow-400' };
