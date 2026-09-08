@@ -51,57 +51,17 @@ export default function ResolutionPage() {
 
     try {
       const result = await checkSatisfiability(knowledgeBase, goal);
-      console.log("Response from backend:", result);
+      console.log("Response :", result);
 
       setResolutionResult(result);
 
-      // Build annotation message
-      let resultMessage = '';
-      if (result.steps && result.steps.length > 0) {
-        resultMessage = `=== Resolution Result ===\n\n`;
-        resultMessage += `Goal: ${goal}\n`;
-        resultMessage += `Result: ${result.is_satisfiable || (result.result ? 'SATISFIABLE' : 'UNSATISFIABLE')}\n`;
-        resultMessage += `Steps: ${result.steps.length} resolution step(s)\n\n`;
-        resultMessage += `--- Resolution Steps ---\n`;
-        result.steps.forEach((step, i) => {
-          resultMessage += `Step ${i + 1}: Resolving clauses on pivot '${step.pivot || '?'}'\n`;
-        });
-        resultMessage += `\n✅ Done.`;
-      } else {
-        resultMessage = `✅ Result: ${result.is_satisfiable || (result.result ? 'SATISFIABLE' : 'UNSATISFIABLE')}`;
-      }
-
-      setAnnotations(resultMessage);
-      setError(null);
-
     } catch (err) {
-      console.error("Resolution failed:", err);
-      const errorMsg = `❌ Error: ${err.message || 'Failed to check satisfiability. Is the backend running?'}`;
-      setError(errorMsg);
+      console.error(err);
       setAnnotations(errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // ===== KEYBOARD SHORTCUTS =====
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Ctrl + Enter (or Cmd + Enter on Mac) to check satisfiability
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        handleCheckSatisfiability();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [knowledgeBase, goal]);
-
-  // ===== RENDER =====
-
-  const status = getStatusBadge();
 
   return (
     <>
