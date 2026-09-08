@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
-from .schemas import FormulaRequest, SolutionResponse 
-from .schemas import SingleFormulaRequest, FormulaValidationResponse
-from . import serializers
+from schemas import FormulaRequest, SolutionResponse 
+from schemas import SingleFormulaRequest, FormulaValidationResponse
+import serializers
 import sys
 import os
 
@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from logicEngine import services
 from logicEngine import lexer
 from logicEngine.parser import Parser
-from logicEngine.errors import ResVizError, LexerError, ParserError
+from logicEngine.errors import LexerError, ParserError
 
 router = APIRouter()
 
@@ -18,7 +18,6 @@ router = APIRouter()
 async def solve_endpoint(request: FormulaRequest):
     try:
         formula = services.combine_knowledge_base(request.formula)
-        formula = services.add_negated_goal(formula, request.goal)
         result = services.solve_formula(formula, request.goal)
 
         return {
