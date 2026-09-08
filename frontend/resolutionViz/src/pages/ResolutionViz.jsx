@@ -89,23 +89,11 @@ export default function ResolutionPage() {
             {/* Query Goal */}
             <QueryGoal value={goal} onChange={setGoal} />
 
-            {/* Status Badge */}
-            {status && (
-              <div className={`text-center text-sm font-medium py-1 px-3 rounded ${status.className}`}>
-                {status.text}
-              </div>
-            )}
-
             {/* Satisfiability Button */}
             <SatisfiabilityButton
               onClick={handleCheckSatisfiability}
               isLoading={isLoading}
             />
-
-            {/* Keyboard Shortcut Hint */}
-            <div className="text-xs text-slate-500 text-center mt-1">
-              Press Ctrl+Enter to check satisfiability
-            </div>
           </aside>
 
           {/* RIGHT PANEL */}
