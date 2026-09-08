@@ -23,7 +23,7 @@ class Resolution:
         
 
     def resolve(self, clause1: FrozenSet[Tuple[str, bool]], 
-                clause2: FrozenSet[Tuple[str, bool]]) -> List[FrozenSet[Tuple[str, bool]]]:
+                clause2: FrozenSet[Tuple[str, bool]]) -> List[Tuple[FrozenSet[Tuple[str, bool]], str]]:
         """
             Resolve two clauses and find all possible resolvents.
             
@@ -34,7 +34,7 @@ class Resolution:
             Returns:
                 List of resolvent clauses (frozensets of literals)
         """
-        resolvents: List[FrozenSet[Tuple[str, bool]]] = []
+        results: List[Tuple[FrozenSet[Tuple[str, bool]], str]] = []
         for literal1 in clause1:
             for literal2 in clause2:
                 # Check if literals are complementary (same variable, opposite negation)
@@ -44,27 +44,14 @@ class Resolution:
                     remaining2 = clause2 - {literal2}
                     resolvent = remaining1 | remaining2
 
-                    if self.is_tautology(resolvent):
-                        continue
+                    if not self.is_tautology(resolvent):
+                        resolvent = frozenset(resolvent)
+                        pivot = literal1[0]
 
-                    resolvent = frozenset(resolvent)
+                        if (resolvent, pivot) not in results:
+                            results.append((resolvent, pivot))
 
-                    if resolvent not in resolvents and resolvent not in self._seen_resolvents:
-                        resolvents.append(resolvent)
-                        self._seen_resolvents.add(resolvent)
-
-                        # Track resolution steps
-                        self.step_counter += 1
-                        step = {
-                            "step": self.step_counter,
-                            "clause1": clause1,
-                            "clause2": clause2,
-                            "pivot": literal1[0],
-                            "resolvent": resolvent
-                        }
-                        self.resolutionSteps.append(step)
-
-        return resolvents
+        return results
 
     def is_tautology(self, clause: FrozenSet[Tuple[str, bool]]) -> bool:
         """
@@ -128,6 +115,49 @@ class Resolution:
 
             clause_set.update(new_clauses)
     
+    def set_of_support_resolution(self, clauses, negatedGoal):
+        auxiliary_set = {frozenset(clause) for clause in clauses}
+        set_of_support_set = {frozenset(clause) for clause in negatedGoal}
+
+        processed_set_of_supports = set()
+        while set_of_support_set:
+            current_support = set_of_support_set.pop()
+            processed_set_of_supports.add(current_support)
+            potential_parents = auxiliary_set | processed_set_of_supports
+
+            for parent in potential_parents:
+                resolvents = self.resolve(current_support, parent)
+                for resolvent, pivot in resolvents:
+                    if len(resolvent) == 0:
+                        self.step_counter += 1
+
+                        self.resolutionSteps.append({
+                            "step": self.step_counter,
+                            "clause1": current_support,
+                            "clause2": parent,
+                            "pivot": pivot,
+                            "resolvent": resolvent
+                        })
+                        return True
+
+                    if (
+                        resolvent not in auxiliary_set 
+                        and resolvent not in set_of_support_set 
+                        and resolvent not in processed_set_of_supports
+                        ):
+                        set_of_support_set.add(resolvent)
+
+                        self.step_counter += 1
+
+                        self.resolutionSteps.append({
+                            "step": self.step_counter,
+                            "clause1": current_support,
+                            "clause2": parent,
+                            "pivot": pivot,
+                            "resolvent": resolvent
+                        })
+                        
+        return False
 if __name__=='__main__':
     """
         Example Usage
