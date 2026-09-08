@@ -17,8 +17,6 @@ export default function ResolutionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // ===== IMPORT / EXPORT HANDLERS =====
-
   const handleImportKB = (lines) => {
     setKnowledgeBase(lines.join('\n'));
     setError(null);
@@ -45,36 +43,6 @@ export default function ResolutionPage() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
-
-  const handleExportResult = () => {
-    if (!resolutionResult) {
-      alert('No resolution result to export. Please run Check Satisfiability first.');
-      return;
-    }
-    
-    const json = JSON.stringify(resolutionResult, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'resolution_result.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleReset = () => {
-    if (confirm('Clear all inputs and results?')) {
-      setKnowledgeBase('');
-      setGoal('');
-      setAnnotations('');
-      setResolutionResult(null);
-      setError(null);
-    }
-  };
-
-  // ===== CHECK SATISFIABILITY =====
 
   const handleCheckSatisfiability = async () => {
     // Clear previous results
