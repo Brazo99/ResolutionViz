@@ -28,20 +28,25 @@ def solve_formula(formula, target: str):
     try:
         # Step 1: Tokenize
         tokens = lexer.tokenizer(formula)
+        target_token = lexer.tokenizer("!("+target+")")
         
         # Step 2: Parse to AST
         parser_instance = parser.Parser(tokens)
         tree = parser_instance.parse()
+        target_parser_instance = parser.Parser(target_token)
+        target_tree = target_parser_instance.parse()
         
         # Step 3: Convert to CNF
         cnf_tree = cnf.CnfConverter().convert_to_cnf(tree)
+        target_cnf_tree = cnf.CnfConverter().convert_to_cnf(target_tree)
         
         # Step 4: Extract clauses
         clauses_list = clauses.Clauses().extract_sorted_clauses(cnf_tree, target)
-        
+        target_clauses = clauses.Clauses().extract_sorted_clauses(target_cnf_tree, target)
+
         # Step 5: Apply resolution
         resolution_engine = resolution.Resolution()
-        result = resolution_engine.resolution(clauses_list)
+        result = resolution_engine.set_of_support_resolution(clauses_list, target_clauses)
         
         return {
             "formula": formula,
