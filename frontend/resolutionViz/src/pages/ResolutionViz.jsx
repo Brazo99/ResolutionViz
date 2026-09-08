@@ -69,15 +69,21 @@ export default function ResolutionPage() {
       <main className="fixed inset-x-0 top-[57px] bottom-0 overflow-hidden bg-slate-900">
         <div className="grid h-full grid-cols-[500px_minmax(0,1fr)]">
           {/* LEFT PANEL */}
-          <aside className="grid h-full min-h-0 grid-rows-[auto_1fr_auto_auto] gap-3 overflow-hidden border-r border-slate-800 bg-slate-900 p-5">
+          <aside 
+            className="
+            grid h-full 
+            min-h-0 
+            grid-rows-[auto_1fr_auto_auto] 
+            gap-3 
+            overflow-hidden 
+            border-r border-slate-800 
+            bg-slate-900 p-5">
+
             {/* Toolbar */}
             <KBToolbar
               onImport={handleImportKB}
               onExport={handleExportKB}
-              onReset={handleReset}
-              onExportResult={handleExportResult}
               hasContent={knowledgeBase.trim().length > 0}
-              hasResult={!!resolutionResult}
             />
 
             {/* Main editor area */}
