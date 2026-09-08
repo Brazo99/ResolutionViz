@@ -49,44 +49,6 @@ export default function ResolutionPage() {
     setError(null);
     setResolutionResult(null);
 
-    // Validate: Knowledge base not empty
-    if (!knowledgeBase || knowledgeBase.trim() === '') {
-      const msg = '❌ Knowledge base cannot be empty.';
-      setError(msg);
-      setAnnotations(msg);
-      return;
-    }
-
-    // Validate: Goal not empty
-    if (!goal || goal.trim() === '') {
-      const msg = '❌ Query goal cannot be empty.';
-      setError(msg);
-      setAnnotations(msg);
-      return;
-    }
-
-    // Validate each formula in knowledge base
-    const formulas = knowledgeBase.split('\n').filter(line => line.trim() !== '');
-    for (const f of formulas) {
-      if (!validateFormula(f.trim())) {
-        const msg = `❌ Invalid formula: "${f.trim()}"\nCheck for unbalanced parentheses.`;
-        setError(msg);
-        setAnnotations(msg);
-        return;
-      }
-    }
-
-    // Validate goal formula
-    if (!validateFormula(goal.trim())) {
-      const msg = `❌ Invalid goal: "${goal.trim()}"\nCheck for unbalanced parentheses.`;
-      setError(msg);
-      setAnnotations(msg);
-      return;
-    }
-
-    setIsLoading(true);
-    setAnnotations('⏳ Checking satisfiability...');
-
     try {
       const result = await checkSatisfiability(knowledgeBase, goal);
       console.log("Response from backend:", result);
