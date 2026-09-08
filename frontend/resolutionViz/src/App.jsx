@@ -1,8 +1,3 @@
-import {
-  ReactFlow,
-  Background,
-  Controls,
-} from "@xyflow/react";
 import ResolutionViz from "../src/pages/ResolutionViz"
 
 function App() {
