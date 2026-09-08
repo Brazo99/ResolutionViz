@@ -17,20 +17,6 @@ export default function ResolutionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get status badge
-  const getStatusBadge = () => {
-    if (isLoading) return { text: '⏳ Running...', className: 'bg-yellow-500/20 text-yellow-400' };
-    if (error) return { text: '❌ Error', className: 'bg-red-500/20 text-red-400' };
-    if (resolutionResult) {
-      const isSatisfiable = resolutionResult.is_satisfiable || resolutionResult.result;
-      return {
-        text: isSatisfiable ? '✅ SATISFIABLE' : '❌ UNSATISFIABLE',
-        className: isSatisfiable ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-      };
-    }
-    return null;
-  };
-
   // ===== IMPORT / EXPORT HANDLERS =====
 
   const handleImportKB = (lines) => {
