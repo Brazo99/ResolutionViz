@@ -5,7 +5,8 @@ import KnowledgeBase from "../components/KnowledgeBase";
 import QueryGoal from "../components/QueryGoal";
 import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
-import { useState, useEffect } from "react";
+
+import { useState} from "react";;
 import { checkSatisfiability } from "../api/resolution";
 
 export default function ResolutionPage() {
@@ -218,8 +219,8 @@ export default function ResolutionPage() {
 
             {/* Main editor area */}
             <div className="grid min-h-0 grid-rows-[40%_60%] gap-3">
-              <AnnotationsPanel value={annotations} onChange={setAnnotations} />
-              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase} />
+              <AnnotationsPanel value={annotations} onChange={setAnnotations}/>
+              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase}/>
             </div>
 
             {/* Query Goal */}
