@@ -10,18 +10,6 @@ export default function Header() {
       
       </div>
 
-      {/* Center Section: Project Name */}
-      <div className="navbar-center hidden md:flex items-center gap-2 text-sm">
-        <span className="text-slate-500">PROJECT /</span>
-
-        <span className="font-mono font-semibold text-slate-200">
-          <select defaultValue="New Project" className="select select-ghost">
-                <option>New Project</option>
-                <option>propositional</option>
-            </select>
-        </span>
-      </div>
-
       {/* Right Section: Theme controller */}
       <div className="navbar-end flex items-center">
         
