@@ -180,7 +180,7 @@ export default function ResolutionPage() {
             />
           </aside>
 
-          <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-900 p-5">
+          <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-slate-950 p-5">
             <div className="min-h-0">
               <ResolutionPanel
                 result={resolutionResult}
