@@ -122,6 +122,26 @@ export default function ResolutionPage() {
     }
   };
 
+  const handleUseKB = (kb) => {
+    setAnnotations(prev => {
+      const newContent = kb.annotations || "";
+      if (!prev.trim()) return newContent;
+      if (!newContent.trim()) return prev;
+      return prev + '\n' + newContent;
+    });
+
+  setKnowledgeBase(prev => {
+      const newContent = kb.knowledgeBase || "";
+      if (!prev.trim()) return newContent;
+      if (!newContent.trim()) return prev;
+      return prev + '\n' + newContent;
+    });
+
+
+    // Close dropdown
+    document.activeElement.blur();
+  };
+
   return (
     <>
       <Header />
@@ -143,7 +163,12 @@ export default function ResolutionPage() {
             />
 
             <div className="grid min-h-0 grid-rows-[40%_60%] gap-3">
-              <AnnotationsPanel value={annotations} onChange={setAnnotations}/>
+              <AnnotationsPanel 
+                value={annotations} 
+                onChange={setAnnotations} 
+                savedKBs={savedKBs}
+                onUseKB={handleUseKB}
+                />
               <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase}/>
             </div>
 
