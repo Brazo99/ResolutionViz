@@ -1,8 +1,9 @@
 import {
   ReactFlow,
-  Background,
   Controls,
   MiniMap,
+  Background, 
+  BackgroundVariant,
 } from "@xyflow/react";
 import { useMemo } from "react";
 import '@xyflow/react/dist/style.css';
@@ -21,9 +22,16 @@ export default function ResolutionGraph({ clauses = [], steps = [] }) {
         nodes={nodes}
         edges={edges}
         fitView
+        proOptions={{ hideAttribution: true }}
       >
-        <Background />
-        <Controls />
+
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          bgColor="#020617" 
+          color="#020617"
+          gap={20} 
+          size={1.5} 
+        />
       </ReactFlow>
     </div>
   );
