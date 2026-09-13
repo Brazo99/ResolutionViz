@@ -1,9 +1,4 @@
-import {
-  Play,
-  Pause,
-  StepBack,
-  StepForward 
-} from "lucide-react";
+import { Play, Pause, StepBack, StepForward } from "lucide-react";
 
 export default function PlaybackControls({
   onBack,
@@ -14,7 +9,7 @@ export default function PlaybackControls({
   canGoForward = true,
 }) {
   return (
- 
+
       <div className="flex items-center justify-center gap-2"> 
 
         <button 
