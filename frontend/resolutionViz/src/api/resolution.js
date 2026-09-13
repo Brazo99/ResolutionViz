@@ -16,9 +16,6 @@ export const checkSatisfiability = async (formula, goal) => {
 };
 
 export const validateFormula = async (formula) => {
-  const response = await api.post("/checkFormula", {
-    formula: formula,
-  });
-
-  return response.data
-}
+  const response = await api.post("/checkFormula", { formula });
+  return response.data;
+};
