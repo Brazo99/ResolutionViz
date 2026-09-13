@@ -114,6 +114,7 @@ export default function ResolutionPage() {
     try {
       const result = await checkSatisfiability(knowledgeBase, goal);
       setResolutionResult(result);
+      console.log(result)
     } catch (err) {
       console.error(err);
       setError(err.message || "An error occurred.");
