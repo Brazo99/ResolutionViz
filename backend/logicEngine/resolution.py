@@ -138,7 +138,7 @@ class Resolution:
                             "pivot": pivot,
                             "resolvent": resolvent
                         })
-                        return True
+                        return False
 
                     if (
                         resolvent not in auxiliary_set 
@@ -156,8 +156,76 @@ class Resolution:
                             "pivot": pivot,
                             "resolvent": resolvent
                         })
-                        
-        return False
+
+        return True
+
+    def traceback_solution(self,steps):
+
+        def clause_key(clause):
+            return frozenset(
+                (literal[0], literal[1])
+                for literal in clause
+            )
+
+        # Map resolvents to the step that produced them
+        step_by_resolvent = {}
+
+        for step in steps:
+            key = clause_key(step["resolvent"])
+
+            if key not in step_by_resolvent:
+                step_by_resolvent[key] = step
+
+        # Find the final empty-clause step
+        final_step = None
+
+        for step in steps:
+            if len(step["resolvent"]) == 0:
+                final_step = step
+                break
+
+        if final_step is None:
+            return []
+
+        # Include the final step
+        solution_steps = [final_step]
+
+        # Trace its parents
+        required_clauses = {
+            clause_key(final_step["clause1"]),
+            clause_key(final_step["clause2"])
+        }
+
+        visited = set()
+
+        while required_clauses:
+
+            clause = required_clauses.pop()
+
+            if clause in visited:
+                continue
+
+            visited.add(clause)
+
+            step = step_by_resolvent.get(clause)
+
+            if step is None:
+                # Original clause — no previous step to trace
+                continue
+
+            solution_steps.append(step)
+
+            required_clauses.add(clause_key(step["clause1"]))
+            required_clauses.add(clause_key(step["clause2"]))
+
+        solution_steps.sort(key=lambda step: step["step"])
+
+        # Renumber sequentially starting from 1
+        for i, step in enumerate(solution_steps, start=1):
+            step["step"] = i
+
+        return solution_steps
+    
 if __name__=='__main__':
     """
         Example Usage
