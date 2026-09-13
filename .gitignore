@@ -1,8 +1,16 @@
+# Python packaging
+*.egg-info/
 .venv
 .gitmessage.txt
 __pycache__
 /node_modules
 package-lock.json
+
+# Testing
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
 
 # Logs
 logs
