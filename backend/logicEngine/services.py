@@ -47,7 +47,12 @@ def solve_formula(formula, target: str):
         # Step 5: Apply resolution
         resolution_engine = resolution.Resolution()
         result = resolution_engine.set_of_support_resolution(clauses_list, target_clauses)
-        
+
+        if result:
+            steps = resolution_engine.resolutionSteps
+        else:
+            steps = resolution_engine.traceback_solution(resolution_engine.resolutionSteps)
+
         return {
             "formula": formula,
             "goal": target,
@@ -55,7 +60,7 @@ def solve_formula(formula, target: str):
             "ast": tree,
             "cnf": cnf_tree,
             "clauses": clauses_list,
-            "steps": resolution_engine.resolutionSteps,
+            "steps": steps,
             "result": result
         }
     
