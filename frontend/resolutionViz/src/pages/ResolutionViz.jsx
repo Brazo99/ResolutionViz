@@ -7,7 +7,7 @@ import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
 
 import { useState, useEffect } from "react";
-import { checkSatisfiability } from "../api/resolution";
+import { checkSatisfiability, validateFormula } from "../api/resolution";
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
@@ -107,21 +107,44 @@ export default function ResolutionPage() {
   };
 
   const handleCheckSatisfiability = async () => {
-    setError(null);
-    setResolutionResult(null);
-    setIsLoading(true);
+  setError(null);
+  setResolutionResult(null);
+  setIsLoading(true);
 
-    try {
-      const result = await checkSatisfiability(knowledgeBase, goal);
-      setResolutionResult(result);
-      console.log(result)
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "An error occurred.");
-    } finally {
-      setIsLoading(false);
+  try {
+
+    const formulas = knowledgeBase
+      .split("\n")
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    for (const formula of formulas) {
+      const { valid, error, position } = await validateFormula(formula);
+      if (!valid) {
+        const posNote = position != null ? ` (at position ${position})` : "";
+        setError(`Invalid formula: "${formula}" — ${error}${posNote}`);
+        return;
+      }
     }
-  };
+
+    if (goal.trim()) {
+      const { valid, error, position } = await validateFormula(goal.trim());
+      if (!valid) {
+        const posNote = position != null ? ` (at position ${position})` : "";
+        setError(`Invalid goal: "${goal}" — ${error}${posNote}`);
+        return;
+      }
+    }
+
+    const result = await checkSatisfiability(knowledgeBase, goal);
+    setResolutionResult(result);
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "An error occurred.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleUseKB = (kb) => {
     setAnnotations(prev => {
