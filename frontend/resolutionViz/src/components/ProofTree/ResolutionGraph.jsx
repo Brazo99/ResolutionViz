@@ -1,7 +1,7 @@
 import {ReactFlow, Controls, MiniMap, Background, BackgroundVariant,} from "@xyflow/react";
 import { useMemo } from "react";
 import '@xyflow/react/dist/style.css';
-import { convertStepsToGraph } from "../../utils/resolutionGraph";
+import { convertStepsToGraph } from "../../utils/graph/convertStepsToGraph";
 
 export default function ResolutionGraph({ clauses = [], steps = [], currentStep = 0, }) {
   const { nodes, edges } = useMemo(
