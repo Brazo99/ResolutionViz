@@ -122,7 +122,7 @@ export default function ResolutionPage() {
       const { valid, error, position } = await validateFormula(formula);
       if (!valid) {
         const posNote = position != null ? ` (at position ${position})` : "";
-        setError(`Invalid formula: "${formula}" — ${error}${posNote}`);
+        alert(`Invalid formula: "${formula}"\n\n${error}${posNote}`);
         return;
       }
     }
@@ -131,7 +131,7 @@ export default function ResolutionPage() {
       const { valid, error, position } = await validateFormula(goal.trim());
       if (!valid) {
         const posNote = position != null ? ` (at position ${position})` : "";
-        setError(`Invalid goal: "${goal}" — ${error}${posNote}`);
+        alert(`Invalid goal: "${goal}"\n\n${error}${posNote}`);
         return;
       }
     }
