@@ -6,7 +6,7 @@ import QueryGoal from "../components/QueryGoal";
 import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { checkSatisfiability, validateFormula } from "../api/resolution";
 
 export default function ResolutionPage() {
@@ -25,7 +25,7 @@ export default function ResolutionPage() {
   const handleCreateNewKB = () => {
     const newKB = {
       id: Date.now(),
-      name: "New KB", // Default name
+      name: "New KB",
       annotations: annotations,
       knowledgeBase: knowledgeBase,
     };
@@ -118,6 +118,16 @@ export default function ResolutionPage() {
       .map(line => line.trim())
       .filter(Boolean);
 
+    if (formulas.length === 0) {
+      alert("Knowledge base is empty. Please enter at least one formula.");
+      return;
+    }
+
+    if (!goal.trim()) {
+      alert("Query goal is empty. Please enter a goal.");
+      return;
+    }
+
     for (const formula of formulas) {
       const { valid, error, position } = await validateFormula(formula);
       if (!valid) {
@@ -127,13 +137,11 @@ export default function ResolutionPage() {
       }
     }
 
-    if (goal.trim()) {
-      const { valid, error, position } = await validateFormula(goal.trim());
-      if (!valid) {
-        const posNote = position != null ? ` (at position ${position})` : "";
-        alert(`Invalid goal: "${goal}"\n\n${error}${posNote}`);
-        return;
-      }
+    const { valid, error, position } = await validateFormula(goal.trim());
+    if (!valid) {
+      const posNote = position != null ? ` (at position ${position})` : "";
+      alert(`Invalid goal: "${goal}"\n\n${error}${posNote}`);
+      return;
     }
 
     const result = await checkSatisfiability(knowledgeBase, goal);
@@ -162,7 +170,6 @@ export default function ResolutionPage() {
     });
 
 
-    // Close dropdown
     document.activeElement.blur();
   };
 
