@@ -118,16 +118,6 @@ export default function ResolutionPage() {
       .map(line => line.trim())
       .filter(Boolean);
 
-    if (formulas.length === 0) {
-      alert("Knowledge base is empty. Please enter at least one formula.");
-      return;
-    }
-
-    if (!goal.trim()) {
-      alert("Query goal is empty. Please enter a goal.");
-      return;
-    }
-
     for (const formula of formulas) {
       const { valid, error, position } = await validateFormula(formula);
       if (!valid) {
@@ -173,6 +163,11 @@ export default function ResolutionPage() {
     document.activeElement.blur();
   };
 
+  const canSubmit =
+    knowledgeBase.trim().length > 0 &&
+    goal.trim().length > 0 &&
+    !isLoading;
+
   return (
     <>
       <Header />
@@ -208,6 +203,7 @@ export default function ResolutionPage() {
             <SatisfiabilityButton
               onClick={handleCheckSatisfiability}
               isLoading={isLoading}
+              disabled={!canSubmit}
             />
           </aside>
 
