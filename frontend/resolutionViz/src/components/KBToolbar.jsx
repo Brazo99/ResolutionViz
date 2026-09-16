@@ -35,10 +35,6 @@ export default function KBToolbar({
   };
 
   const handleExport = () => {
-    if (!hasContent) {
-      alert('Knowledge base is empty. Nothing to export.');
-      return;
-    }
     if (onExport) onExport();
   };
 
@@ -158,7 +154,8 @@ export default function KBToolbar({
 
         <button
           onClick={handleExport}
-          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+          disabled={!hasContent}
+          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download size={16} />
           Export KB
