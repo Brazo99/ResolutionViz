@@ -1,44 +1,113 @@
 import { useRef, useEffect } from "react";
 
-export default function TextEditor({
-  value,
-  onChange,
-  placeholder,
-}) {
+export default function TextEditor({value, onChange, placeholder, errorLine = null, onErrorPositionChange=null,}) {
   const lines = value.split("\n");
   const textareaRef = useRef(null);
+  const editorRef = useRef(null);
+  const lineRefs = useRef({});
 
+  // Auto-grow textarea to match the content height
   useEffect(() => {
     const ta = textareaRef.current;
     if (!ta) return;
+
     ta.style.height = "auto";
-    ta.style.height = ta.scrollHeight + "px";
+    ta.style.height = `${ta.scrollHeight}px`;
   }, [value]);
 
+  // Calculate the position of the error line
+  const updateErrorPosition = () => {
+    if (
+      !errorLine ||
+      !editorRef.current ||
+      !lineRefs.current[errorLine]
+    ) {
+      onErrorPositionChange?.(null);
+      return;
+    }
+
+    const editor = editorRef.current;
+    const line = lineRefs.current[errorLine];
+
+    const editorRect = editor.getBoundingClientRect();
+    const lineRect = line.getBoundingClientRect();
+
+    const lineTop = lineRect.top - editorRect.top;
+
+    onErrorPositionChange?.({
+      top: lineTop,
+      lineHeight: lineRect.height,
+      editorHeight: editor.clientHeight,
+    });
+  };
+
+  // Update when error line or content changes
+  useEffect(() => {
+    updateErrorPosition();
+  }, [errorLine, value]);
+
+  // Update while editor scrolls
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const handleScroll = () => {
+      updateErrorPosition();
+    };
+
+    editor.addEventListener("scroll", handleScroll);
+
+    return () => {
+      editor.removeEventListener("scroll", handleScroll);
+    };
+  }, [errorLine]);
+
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto bg-slate-950">
+    <div
+      ref={editorRef}
+      className="h-full min-h-0 flex-1 overflow-y-auto bg-slate-950"
+    >
       <div className="flex min-h-full">
 
         {/* Line numbers */}
-        <div className="
-          shrink-0
-          select-none
-          px-3
-          py-4
-          text-right
-          font-mono
-          text-sm
-          leading-6
-          text-slate-600
-        ">
-          {lines.map((_, index) => (
-            <div key={index}>
-              {index + 1}
-            </div>
-          ))}
+        <div
+          className="
+            shrink-0
+            select-none
+            px-3
+            py-4
+            text-right
+            font-mono
+            text-sm
+            leading-6
+            text-slate-600
+          "
+        >
+          {lines.map((_, index) => {
+            const lineNumber = index + 1;
+            const isError = errorLine === lineNumber;
+
+            return (
+              <div
+                key={index}
+                ref={(element) => {
+                  if (element) {
+                    lineRefs.current[lineNumber] = element;
+                  }
+                }}
+                className={
+                  isError
+                    ? "font-bold text-red-500"
+                    : "text-slate-600"
+                }
+              >
+                {lineNumber}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Textarea: auto-growing*/}
+        {/* Textarea */}
         <textarea
           ref={textareaRef}
           value={value}
@@ -46,7 +115,7 @@ export default function TextEditor({
           placeholder={placeholder}
           spellCheck={false}
           rows={1}
-          className="
+          className={`
             min-w-0
             flex-1
             resize-none
@@ -58,12 +127,11 @@ export default function TextEditor({
             font-mono
             text-sm
             leading-6
-            text-slate-400
             outline-none
             placeholder:text-slate-700
-          "
+            ${errorLine ? "text-red-300" : "text-slate-400"}
+          `}
         />
-
       </div>
     </div>
   );
