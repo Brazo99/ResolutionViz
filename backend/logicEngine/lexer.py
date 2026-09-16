@@ -71,7 +71,7 @@ def tokenizer(knowledgeBase: str) -> List[str]:
                 invalid_character = remaining_chars[0]
                 valid_symbols = "(, ), ->, &, !, <->, |, or variables [A-Z]"
                 raise LexerError(
-                    f"Unexpected character {invalid_character!r} at position {position}. Valid tokens are: {valid_symbols}.",
+                    f"Unexpected character {invalid_character!r} at position {position}. Valid characters are: {valid_symbols}.",
                     position
                 )
 
