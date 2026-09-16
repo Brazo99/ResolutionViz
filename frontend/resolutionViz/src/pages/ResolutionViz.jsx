@@ -6,8 +6,8 @@ import QueryGoal from "../components/QueryGoal";
 import SatisfiabilityButton from "../components/SatisfiabilityButton";
 import ResolutionPanel from "../components/ProofTree/ResolutionPanel";
 
-import { useState } from "react";
-import { checkSatisfiability, validateFormula } from "../api/resolution";
+import { useState, useEffect } from "react";
+import { checkSatisfiability } from "../api/resolution";
 
 export default function ResolutionPage() {
   const [annotations, setAnnotations] = useState("");
@@ -25,7 +25,7 @@ export default function ResolutionPage() {
   const handleCreateNewKB = () => {
     const newKB = {
       id: Date.now(),
-      name: "New KB",
+      name: "New KB", // Default name
       annotations: annotations,
       knowledgeBase: knowledgeBase,
     };
@@ -107,42 +107,21 @@ export default function ResolutionPage() {
   };
 
   const handleCheckSatisfiability = async () => {
-  setError(null);
-  setResolutionResult(null);
-  setIsLoading(true);
+    setError(null);
+    setResolutionResult(null);
+    setIsLoading(true);
 
-  try {
-
-    const formulas = knowledgeBase
-      .split("\n")
-      .map(line => line.trim())
-      .filter(Boolean);
-
-    for (const formula of formulas) {
-      const { valid, error, position } = await validateFormula(formula);
-      if (!valid) {
-        const posNote = position != null ? ` (at position ${position})` : "";
-        alert(`Invalid formula: "${formula}"\n\n${error}${posNote}`);
-        return;
-      }
+    try {
+      const result = await checkSatisfiability(knowledgeBase, goal);
+      setResolutionResult(result);
+      console.log(result)
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "An error occurred.");
+    } finally {
+      setIsLoading(false);
     }
-
-    const { valid, error, position } = await validateFormula(goal.trim());
-    if (!valid) {
-      const posNote = position != null ? ` (at position ${position})` : "";
-      alert(`Invalid goal: "${goal}"\n\n${error}${posNote}`);
-      return;
-    }
-
-    const result = await checkSatisfiability(knowledgeBase, goal);
-    setResolutionResult(result);
-  } catch (err) {
-    console.error(err);
-    setError(err.message || "An error occurred.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const handleUseKB = (kb) => {
     setAnnotations(prev => {
@@ -160,6 +139,7 @@ export default function ResolutionPage() {
     });
 
 
+    // Close dropdown
     document.activeElement.blur();
   };
 
