@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { BookOpen, PlayCircle } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -32,6 +32,13 @@ export default function LandingPage() {
             >
               <BookOpen size={24} />
               Docs
+            </button>
+
+            <button
+              className="flex items-center gap-2 rounded-full border-2 border-[#0c3a5e]/60 bg-gradient-to-b from-[#7db4d1] to-[#5f9ec0] px-6 py-2 text-xl font-black tracking-wider text-[#0c3a5e] uppercase shadow-md transition hover:from-[#8cc0da] hover:to-[#6faed0] active:scale-95 md:px-8 md:py-2.5 md:text-2xl"
+            >
+              <PlayCircle size={24} />
+              Demo
             </button>
           </div>
         </div>
