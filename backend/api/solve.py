@@ -59,15 +59,13 @@ async def check_formula(request: SingleFormulaRequest):
 
         return {
             "valid": True,
-            "tokens": tokens,
             "error": None,
-            "position": None,
+            "error_position": None,
         }
 
     except (LexerError, ParserError) as error:
         return {
             "valid": False,
-            "tokens": [],
             "error": str(error),
-            "position": error.position,
+            "error_position": error.position,
         }

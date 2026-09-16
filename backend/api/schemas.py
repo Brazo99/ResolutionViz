@@ -64,9 +64,8 @@ class SingleFormulaRequest(BaseModel):
 class FormulaValidationResponse(BaseModel):
     """Response returned by the formula validation endpoint."""
     valid: bool
-    tokens: List[TokenResponse]
     error: str | None = None
-    position: int | None = None
+    error_position: int | None = None
 
 # Response Model 
 class SolutionResponse(BaseModel):
