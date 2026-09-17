@@ -4,6 +4,7 @@ export default function KBToolbar({
   onImport, 
   onExport, 
   hasContent = false,
+  disabled = false,
   currentKBName,
   savedKBs = [],
   onCreateNewKB,
@@ -60,9 +61,9 @@ export default function KBToolbar({
       <div className="dropdown dropdown-start">
         {/* Editable Button Label */}
         <div
-          tabIndex={0}
+          tabIndex={disabled ? -1 : 0}
           role="button"
-          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 max-w-[200px] p-0"
+          className={`btn btn-sm border-slate-700 bg-slate-800 text-slate-200 max-w-[200px] p-0 ${disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-700"}`}
         >
           <Plus size={16} className="ml-2 shrink-0" />
           
@@ -70,6 +71,7 @@ export default function KBToolbar({
           <input
             type="text"
             value={currentKBName}
+            disabled={disabled}
             onChange={(e) => onRenameKB(e.target.value)}
             onKeyDown={handleRenameKeyDown}               
             onBlur={onSaveKBName}                          
@@ -88,7 +90,7 @@ export default function KBToolbar({
         >
           {/* New KB */}
           <li>
-              <button onClick={onCreateNewKB}>
+              <button onClick={onCreateNewKB} disabled={disabled}>
                 <Plus size={16} />
                 <span>New KB</span>
               </button>
@@ -116,6 +118,7 @@ export default function KBToolbar({
                     {/* KB name */}
                     <button
                       onClick={() => handleLoadKB(kb)}
+                      disabled={disabled}
                       className="flex min-w-0 flex-1 flex-row items-center gap-2 text-left"
                     >
                       <List size={16} className="shrink-0" />
@@ -128,6 +131,7 @@ export default function KBToolbar({
                     {/* Delete */}
                     <button
                       onClick={(e) => handleDeleteKB(e, kb)}
+                      disabled={disabled}
                       className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-slate-400 hover:bg-transparent hover:text-red-400"
                       title="Delete KB"
                     >
@@ -146,7 +150,8 @@ export default function KBToolbar({
       <div className="flex gap-2">
         <button
           onClick={handleImport}
-          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700"
+          disabled={disabled}
+          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Upload size={16} />
           Import KB
@@ -154,7 +159,7 @@ export default function KBToolbar({
 
         <button
           onClick={handleExport}
-          disabled={!hasContent}
+          disabled={disabled || !hasContent}
           className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download size={16} />

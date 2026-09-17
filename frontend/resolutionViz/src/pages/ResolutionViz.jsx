@@ -166,6 +166,7 @@ export default function ResolutionPage() {
               onRenameKB={handleRenameKB}
               onSaveKBName={handleSaveKBName}
               hasContent={knowledgeBase.trim().length > 0}
+              disabled={isLoading}
             />
 
             <div className="grid min-h-0 grid-rows-[40%_60%] gap-3">
