@@ -2,6 +2,7 @@ export default function QueryGoal({
   value,
   onChange,
   onProve,
+  disabled = false,
 }) {
   return (
     <section className="shrink-0">
@@ -15,9 +16,10 @@ export default function QueryGoal({
         <input
           type="text"
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Enter Goal e,g A"
-          className="
+          className={`
             min-w-0
             flex-1
             bg-transparent
@@ -28,7 +30,8 @@ export default function QueryGoal({
             text-slate-300
             outline-none
             placeholder:text-slate-700
-          "
+            ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+          `}
         />
 
       </div>

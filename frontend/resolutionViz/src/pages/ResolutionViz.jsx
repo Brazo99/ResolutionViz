@@ -175,11 +175,12 @@ export default function ResolutionPage() {
                 onChange={setAnnotations} 
                 savedKBs={savedKBs}
                 onUseKB={handleUseKB}
+                disabled={isLoading}
                 />
-              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase}/>
+              <KnowledgeBase value={knowledgeBase} onChange={setKnowledgeBase} disabled={isLoading}/>
             </div>
 
-            <QueryGoal value={goal} onChange={setGoal} />
+            <QueryGoal value={goal} onChange={setGoal} disabled={isLoading} />
 
             <SatisfiabilityButton
               onClick={handleCheckSatisfiability}

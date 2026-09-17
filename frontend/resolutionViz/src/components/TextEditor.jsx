@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 
-export default function TextEditor({value, onChange, placeholder, errorLine = null, onErrorPositionChange=null,}) {
+export default function TextEditor({value, onChange, placeholder, errorLine = null, onErrorPositionChange=null, disabled = false,}) {
   const lines = value.split("\n");
   const textareaRef = useRef(null);
   const editorRef = useRef(null);
@@ -111,6 +111,7 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
         <textarea
           ref={textareaRef}
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           spellCheck={false}
@@ -129,6 +130,7 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
             leading-6
             outline-none
             placeholder:text-slate-700
+            ${disabled ? "opacity-50 cursor-not-allowed" : ""}
             ${errorLine ? "text-red-300" : "text-slate-400"}
           `}
         />

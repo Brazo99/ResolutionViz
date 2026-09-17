@@ -3,7 +3,7 @@ import TextEditor from "./TextEditor";
 import { validateFormula } from "../api/resolution";
 import { SquareX } from "lucide-react";
 
-export default function KnowledgeBase({ value, onChange }) {
+export default function KnowledgeBase({ value, onChange, disabled = false }) {
   const [error, setError] = useState(null);
   const [errorLine, setErrorLine] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -170,6 +170,7 @@ export default function KnowledgeBase({ value, onChange }) {
         <TextEditor
           value={value}
           onChange={onChange}
+          disabled={disabled}
           errorLine={errorLine}
           onErrorPositionChange={setErrorPosition}
           placeholder="Enter knowledgebase formulas..."

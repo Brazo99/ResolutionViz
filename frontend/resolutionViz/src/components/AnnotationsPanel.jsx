@@ -6,6 +6,7 @@ export default function AnnotationsPanel({
   onChange,
   savedKBs = [],
   onUseKB,
+  disabled = false,
 }) {
   return (
     <section
@@ -40,9 +41,9 @@ export default function AnnotationsPanel({
           {/* Single dropdown button */}
           <div className="dropdown dropdown-end">
             <div
-              tabIndex={0}
+              tabIndex={disabled ? -1 : 0}
               role="button"
-              className="btn btn-ghost btn-xs text-slate-400 hover:text-slate-200"
+              className={`btn btn-ghost btn-xs text-slate-400 ${disabled ? "opacity-50 cursor-not-allowed" : "hover:text-slate-200"}`}
               title="Paste content from existing KB"
             >
               <ClipboardPaste size={16} />
@@ -62,7 +63,7 @@ export default function AnnotationsPanel({
               ) : (
                 savedKBs.map((kb) => (
                   <li key={kb.id}>
-                    <button onClick={() => onUseKB(kb)}>
+                    <button onClick={() => onUseKB(kb)} disabled={disabled}>
                       <List size={14} />
                       {kb.name}
                     </button>
@@ -78,6 +79,7 @@ export default function AnnotationsPanel({
       <TextEditor
         value={value}
         onChange={onChange}
+        disabled={disabled}
         placeholder="Enter annotations..."
       />
     </section>
