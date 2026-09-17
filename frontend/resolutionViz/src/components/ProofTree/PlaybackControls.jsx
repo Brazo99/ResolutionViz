@@ -7,6 +7,7 @@ export default function PlaybackControls({
   isPlaying = false,
   canGoBack = true,
   canGoForward = true,
+  disabled = false,
 }) {
   return (
 
@@ -15,7 +16,7 @@ export default function PlaybackControls({
         <button 
           className="btn btn-circle btn-neutral"
           onClick={onBack}
-          disabled={!canGoBack}
+          disabled={disabled || !canGoBack}
           title="Previous step"
         >
           <StepBack size={18} />
@@ -24,6 +25,7 @@ export default function PlaybackControls({
         <button 
           className="btn btn-circle btn-primary btn-lg"
           onClick={onPlay}
+          disabled={disabled}
           title={isPlaying ? "Pause proof" : "Play proof"}
           >
           {isPlaying ? (
@@ -36,7 +38,7 @@ export default function PlaybackControls({
         <button 
           className="btn btn-circle btn-neutral"
           onClick={onForward}
-          disabled={!canGoForward}
+          disabled={disabled || !canGoForward}
           title="Next step"
         >
           <StepForward size={18} />

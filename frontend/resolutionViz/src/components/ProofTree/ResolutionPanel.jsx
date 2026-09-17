@@ -2,7 +2,7 @@ import ResolutionGraph from "./ResolutionGraph";
 import PlaybackControls from "./PlaybackControls"
 import { useState,useEffect } from "react";
 
-export default function ResolutionPanel({ result }) {
+export default function ResolutionPanel({ result, isLoading = false }) {
   const clauses = result?.clauses ?? [];
   const steps = result?.steps ?? [];
 
@@ -95,6 +95,7 @@ export default function ResolutionPanel({ result }) {
           isPlaying={isPlaying}
           canGoBack={currentStep > 0}
           canGoForward={currentStep < totalSteps}
+          disabled={isLoading}
         />
       </div>
     </section>
