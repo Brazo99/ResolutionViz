@@ -5,6 +5,27 @@ from .import parser
 from .import resolution
 from .errors import ResVizError
 
+def tokenize_formula(formula: str):
+    """Tokenize one formula for reusable API consumers."""
+    if not formula or not formula.strip():
+        raise ValueError("Formula cannot be empty")
+    return lexer.tokenizer(formula)
+
+def parse_formula(formula: str):
+    """Tokenize and parse one formula into AST for reusable API consumers."""
+    tokens = tokenize_formula(formula)
+    return parser.Parser(tokens).parse()
+
+def convert_formula_to_cnf(formula: str):
+    """Tokenize, parse, and convert one formula to CNF for reusable API consumers."""
+    tree = parse_formula(formula)
+    return cnf.CnfConverter().convert_to_cnf(tree)
+
+def extract_formula_clauses(formula: str):
+    """Tokenize, parse, convert to CNF, and extract clauses."""
+    cnf_tree = convert_formula_to_cnf(formula)
+    return [frozenset(clause) for clause in clauses.Clauses().extract_clauses(cnf_tree)]
+
 def solve_formula(formula, target: str):
     """
         Solve a propositional logic formula using resolution.
