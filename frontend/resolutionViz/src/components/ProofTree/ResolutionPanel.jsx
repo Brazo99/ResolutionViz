@@ -8,8 +8,15 @@ export default function ResolutionPanel({ result, isLoading = false }) {
   const steps = result?.steps ?? [];
   const totalSteps = steps.length;
 
-  const isSatisfiable = result?.result
-  
+  const raw = result?.result;
+  const isSatisfiable =
+    typeof raw === "boolean" ? raw
+    : raw === "true" ? true
+    : raw === "false" ? false
+    : raw === 1 ? true
+    : raw === 0 ? false
+    : null;
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
