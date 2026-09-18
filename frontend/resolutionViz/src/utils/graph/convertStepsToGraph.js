@@ -2,9 +2,8 @@ import { MarkerType } from "@xyflow/react";
 import { clauseToString } from "./formatting";
 import { clauseKey, isEmptyClause } from "./clauseUtils";
 import { NODE_STYLES, EDGE_STYLES } from "./styles";
-import { getLayoutedElements } from "../layout/dynamicLayouting";
+import { getLayoutedElements, getInitialClauseLayout } from "../layout/dynamicLayouting";
 
-// Convert Resolution Steps Into Graph
 export function convertStepsToGraph(clauses = [], steps = [], currentStep = 0) {
     const nodes = [];
     const edges = [];
@@ -12,87 +11,118 @@ export function convertStepsToGraph(clauses = [], steps = [], currentStep = 0) {
     let clauseCounter = 0;
     let resolutionCounter = 0;
 
-    // Create or Reuse Clause Node
-    function getClauseNode(clause, position, kind = "derived") {
+    /*
+     * Track when each clause is:
+     *
+     * 1. introduced as a resolvent
+     * 2. first used as a parent
+     *
+     * This lets us decide when a KB clause should leave the initial horizontal row.
+     */
+    const introducedAt = new Map();
+    const firstUsedAt = new Map();
+
+    steps.forEach((step) => {
+        const stepNumber = step.step;
+        introducedAt.set( clauseKey(step.resolvent), stepNumber);
+        const clause1Key = clauseKey(step.clause1);
+
+        if (!firstUsedAt.has(clause1Key)) {
+            firstUsedAt.set( clause1Key, stepNumber );
+        }
+
+        const clause2Key = clauseKey(step.clause2);
+        if (!firstUsedAt.has(clause2Key)) {
+            firstUsedAt.set(clause2Key,stepNumber);
+        }
+    });
+
+    // Create / reuse clause node
+    function getClauseNode(clause, kind = "derived") {
         const key = clauseKey(clause);
 
-        // If this clause already exists, reuse the existing node.
-        if (clauseNodes.has(key)) {
-            return clauseNodes.get(key);
-        }
+        // Reuse existing node.
+        if (clauseNodes.has(key)) return clauseNodes.get(key);
         clauseCounter++;
         const emptyClause = isEmptyClause(clause);
         let nodeStyle;
 
         if (emptyClause) {
             nodeStyle = NODE_STYLES.contradiction;
-        } else if (kind === "kb") {
+        }
+        else if (kind === "kb") {
             nodeStyle = NODE_STYLES.kb;
-        } else {
+        }
+        else {
             nodeStyle = NODE_STYLES.derived;
         }
 
         const node = {
             id: `clause-${clauseCounter}`,
-            position,
+
+            position: {
+                x: 0,
+                y: 0,
+            },
+
             type: "default",
 
             data: {
-                label: emptyClause ? "□ (False)" : clauseToString(clause),
-
-                type: emptyClause
-                    ? "contradiction"
-                    : kind === "kb"
-                        ? "kb-clause"
-                        : "derived-clause",
+                label: emptyClause ? "□ (False) CONTRADICTION" : clauseToString(clause),
+                type: emptyClause ? "contradiction" : kind === "kb" ? "kb-clause" : "derived-clause",
                 clause,
+                role: kind === "kb" ? "kb" : "derived",
+                introducedAt: introducedAt.get(key) ?? 0,
+                firstUsedAt: firstUsedAt.get(key) ?? null,
             },
 
             style: nodeStyle,
         };
 
+
         nodes.push(node);
-        clauseNodes.set(key, node);
+        clauseNodes.set( key, node);
         return node;
     }
 
-    // Initial Knowledge Base Clauses
-    clauses.forEach((clause, index) => {
-        getClauseNode(clause,
-            {x: index * 220, y: 0,}, "kb");
-
+    // Create initial KB nodes.
+    clauses.forEach((clause) => {
+        getClauseNode( clause, "kb");
     });
 
-    // Only Show Steps Up To currentStep
-    const visibleSteps = steps.slice(0,currentStep);
-
-    // Create Resolution Steps
-    visibleSteps.forEach((step, index) => {
+    /*
+     * Build COMPLETE proof graph.
+     * We need the complete graph for Dagre so that every
+     * proof node gets its final position.
+     */
+    steps.forEach((step) => {
         resolutionCounter++;
-        const parentY = (index + 1) * 300;
+        const stepNumber = step.step;
 
-        // Parent Clause 1
-        const clause1Node = getClauseNode(step.clause1, {x: 50, y: parentY,},"derived");
+        const clause1Node = getClauseNode(step.clause1, "derived");
+        const clause2Node = getClauseNode(step.clause2, "derived" );
 
-        // Parent Clause 2
-        const clause2Node = getClauseNode(step.clause2, {x: 350, y: parentY,},"derived");
-
-        // Resolution Operation Node
         const resolutionNode = {
             id: `resolution-${resolutionCounter}`,
-            position: {x: 200, y: parentY + 120,},
+            position: {
+                x: 0,
+                y: 0,
+            },
             type: "default",
             data: {
-                label:`Resolve on ${step.pivot}`,
+                label: `Resolve on ${step.pivot}`,
                 type: "resolution",
-                pivot:step.pivot,
+                pivot: step.pivot,
                 step,
+                stepNumber,
+                role: "resolution",
             },
-            style:NODE_STYLES.resolution,
+            style: NODE_STYLES.resolution,
         };
+
         nodes.push(resolutionNode);
 
-        // Parent 1 -> Resolution
+        // Clause 1 -> Resolution
         edges.push({
             id: `edge-${resolutionCounter}-1`,
             source: clause1Node.id,
@@ -104,9 +134,10 @@ export function convertStepsToGraph(clauses = [], steps = [], currentStep = 0) {
                 color: EDGE_STYLES.parent.stroke,
             },
 
+            data: {stepNumber},
         });
 
-        // Parent 2 -> Resolution
+        // Clause 2 -> Resolution
         edges.push({
             id: `edge-${resolutionCounter}-2`,
             source: clause2Node.id,
@@ -118,10 +149,11 @@ export function convertStepsToGraph(clauses = [], steps = [], currentStep = 0) {
                 color: EDGE_STYLES.parent.stroke,
             },
 
+            data: {stepNumber},
         });
 
-        // Resolved Clause
-        const resolventNode = getClauseNode(step.resolvent, {x: 200, y: parentY + 240,},"derived");
+        // Resolvent
+        const resolventNode = getClauseNode(step.resolvent,"derived");
         const contradiction = isEmptyClause(step.resolvent);
 
         // Resolution -> Resolvent
@@ -130,19 +162,99 @@ export function convertStepsToGraph(clauses = [], steps = [], currentStep = 0) {
             source: resolutionNode.id,
             target: resolventNode.id,
             type: "smoothstep",
-            style: contradiction ? EDGE_STYLES.contradiction : EDGE_STYLES.derived,
+            style: contradiction ? EDGE_STYLES.contradiction: EDGE_STYLES.derived,
             animated: contradiction,
+
             markerEnd: {
                 type: MarkerType.ArrowClosed,
-                color: contradiction ? EDGE_STYLES.contradiction.stroke : EDGE_STYLES.derived.stroke,
+                color: contradiction ? EDGE_STYLES.contradiction.stroke: EDGE_STYLES.derived.stroke,
             },
 
+            data: {stepNumber,},
         });
-
     });
 
-    // Apply Dynamic Layout
-    const {nodes: layoutedNodes, edges: layoutedEdges,} = getLayoutedElements(nodes, edges);
+    // Calculate FINAL proof positions.
+    const {nodes: proofNodes, edges: proofEdges,} = getLayoutedElements(nodes, edges);
 
-    return {nodes: layoutedNodes, edges: layoutedEdges,};
+    // Calculate INITIAL horizontal positions.
+    const initialNodes = getInitialClauseLayout(proofNodes);
+
+    const playbackNodes =
+        proofNodes
+            .map((proofNode) => {
+                const role =
+                    proofNode.data?.role;
+
+                if (role === "kb") {
+                    const initialNode = initialNodes.find((node) => node.id === proofNode.id);
+                    const firstUsedStep = proofNode.data ?.firstUsedAt;
+
+                    if (firstUsedStep === null || currentStep < firstUsedStep) {
+                        return {
+                            ...proofNode,
+                            position:initialNode.position,
+                        };
+                    }
+
+                    /*
+                     * KB clause has now been used.
+                     *
+                     * Move it to its Dagre proof position.
+                     */
+                    return {
+                        ...proofNode,
+                        position: proofNode.position,
+                        className: firstUsedStep ===currentStep ? "resolution-node-enter": "",
+                    };
+                }
+
+                // Resolution nodes
+                if (role ==="resolution") {
+                    const stepNumber =proofNode.data ?.stepNumber;
+
+                    // Do not render future resolution nodes.
+                    if (stepNumber > currentStep) return null;
+                    
+                    return {
+                        ...proofNode,
+                        className: stepNumber === currentStep ? "resolution-node-enter": "",
+                    };
+                }
+
+                // Derived clause
+                const introducedStep = proofNode.data?.introducedAt;
+
+                // Future derived clause.
+                if (introducedStep > currentStep) return null;
+                
+                return {
+                    ...proofNode,
+                    className: introducedStep === currentStep ? "resolution-node-enter": "",
+                };
+            })
+            .filter(Boolean);
+
+    const visibleNodeIds = new Set(playbackNodes.map((node) => node.id));
+
+    const playbackEdges =
+        proofEdges.filter((edge) => {
+            const stepNumber = edge.data ?.stepNumber ?? 0;
+
+            const endpointsVisible = visibleNodeIds.has(edge.source) &&
+                visibleNodeIds.has(edge.target);
+            return (stepNumber <= currentStep && endpointsVisible);
+        });
+
+    /*
+     * Add entrance animation to edges that belong
+     * to the current step.
+     */
+    playbackEdges.forEach((edge) => {
+        if (edge.data ?.stepNumber ===currentStep) {
+            edge.className = "resolution-edge-enter";
+        }
+    });
+
+    return {nodes: playbackNodes, edges: playbackEdges};
 }
