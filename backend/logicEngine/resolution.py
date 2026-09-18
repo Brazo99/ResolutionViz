@@ -21,7 +21,6 @@ class Resolution:
         self.step_counter: int = 0
         self._seen_resolvents: Set[FrozenSet[Tuple[str, bool]]] = set()
         
-
     def resolve(self, clause1: FrozenSet[Tuple[str, bool]], 
                 clause2: FrozenSet[Tuple[str, bool]]) -> List[Tuple[FrozenSet[Tuple[str, bool]], str]]:
         """
@@ -72,48 +71,6 @@ class Resolution:
                 return True
             seen.add((variable, negated))
         return False
-
-    def resolution(self, clauses: List[FrozenSet[Tuple[str, bool]]]) -> bool:
-        """
-            Perform resolution on a set of clauses until a contradiction is found
-            or no new clauses can be generated.
-            
-            Args:
-                clauses (List[FrozenSet[Tuple[str, bool]]]): List of clauses to resolve
-                
-            Returns:
-                False if a contradiction is found (empty clause), True if satisfiable
-        """
-        clause_set: Set[FrozenSet[Tuple[str, bool]]] = {
-                    frozenset(clause) for clause in clauses
-        }
-
-        while True:
-            new_clauses: Set[FrozenSet[Tuple[str, bool]]] = set()
-            clause_list = list(clause_set)
-
-            for i in range(len(clause_list)):
-                for j in range(i + 1, len(clause_list)):
-
-                    clause1 = clause_list[i]
-                    clause2 = clause_list[j]
-
-                    resolvents = self.resolve(clause1, clause2)
-                    
-                    for resolvent in resolvents:
-                        # Empty clause means contradiction found
-                        if len(resolvent) == 0:
-                            return False
-
-                        # Add new clause if not already present
-                        if resolvent not in clause_set:
-                            new_clauses.add(resolvent)
-
-            # If no new clauses generated, satisfiable
-            if not new_clauses:
-                return True
-
-            clause_set.update(new_clauses)
     
     def set_of_support_resolution(self, clauses, negatedGoal):
         auxiliary_set = {frozenset(clause) for clause in clauses}
