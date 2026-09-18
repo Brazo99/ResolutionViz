@@ -59,7 +59,7 @@ def solve_formula(formula, target: str):
             "tokens": tokens,
             "ast": tree,
             "cnf": cnf_tree,
-            "clauses": clauses_list,
+            "clauses": clauses_list + target_clauses,
             "steps": steps,
             "result": result
         }
