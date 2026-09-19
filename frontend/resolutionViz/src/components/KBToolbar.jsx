@@ -1,85 +1,110 @@
-import { Download, Upload, Plus, ChevronDown, List, Trash2 } from "lucide-react";
+import { Download, Upload, Plus, ChevronDown, List, Trash2, Eraser, Save } from "lucide-react";
+import { useRef } from "react";
 
-export default function KBToolbar({ 
-  onImport, 
-  onExport, 
+export default function KBToolbar({
+  onImport,
+  onExport,
+  onClear,
+  onSave,
+  isDirty = false,
   hasContent = false,
   disabled = false,
-  currentKBName,
+  currentKBName = "New KB",
   savedKBs = [],
+  currentKBID = null,
   onCreateNewKB,
   onLoadKB,
   onDeleteKB,
   onRenameKB,
-  onSaveKBName
+  onSaveKBName,
 }) {
+  const dropdownRef = useRef(null);
+
+  const closeDropdown = () => {
+    if (document.activeElement?.blur) document.activeElement.blur();
+  };
 
   const handleImport = () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.txt,.kb';
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = ".txt,.kb";
     fileInput.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const content = event.target.result;
-          const lines = content.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0);
-          if (onImport) onImport(lines);
-        };
-        reader.readAsText(file);
-      }
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target.result;
+        const lines = content
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
+        onImport?.(lines);
+      };
+      reader.readAsText(file);
     };
     fileInput.click();
   };
 
-  const handleExport = () => {
-    if (onExport) onExport();
+  const handleLoadKB = (kb) => {
+    onLoadKB?.(kb);
+    closeDropdown();
   };
 
-  const handleLoadKB = (kb) => {
-    if (onLoadKB) onLoadKB(kb);
-    document.activeElement.blur();
+  const handleCreateNew = () => {
+    onCreateNewKB?.();
+    closeDropdown();
   };
 
   const handleDeleteKB = (e, kb) => {
     e.stopPropagation();
-    if (onDeleteKB) onDeleteKB(kb);
+    e.preventDefault();
+    onDeleteKB?.(kb);
   };
 
   const handleRenameKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.target.blur();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.currentTarget.blur();
     }
   };
 
   return (
     <div className="flex shrink-0 items-center justify-between gap-2 flex-wrap">
-
-      <div className="dropdown dropdown-start">
+      <div className="dropdown dropdown-start" ref={dropdownRef}>
         {/* Editable Button Label */}
         <div
           tabIndex={disabled ? -1 : 0}
           role="button"
-          className={`btn btn-sm border-slate-700 bg-slate-800 text-slate-200 max-w-[200px] p-0 ${disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-700"}`}
+          aria-haspopup="listbox"
+          aria-label="Knowledge base selector"
+          className={`btn btn-sm border-slate-700 bg-slate-800 text-slate-200 max-w-[240px] p-0 ${
+            disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-700"
+          }`}
         >
           <Plus size={16} className="ml-2 shrink-0" />
-          
-          {/* Editable Input Field */}
+
           <input
             type="text"
             value={currentKBName}
             disabled={disabled}
-            onChange={(e) => onRenameKB(e.target.value)}
-            onKeyDown={handleRenameKeyDown}               
-            onBlur={onSaveKBName}                          
+            onChange={(e) => onRenameKB?.(e.target.value)}
+            onKeyDown={handleRenameKeyDown}
+            onBlur={() => onSaveKBName?.()}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}
             className="bg-transparent border-none outline-none text-slate-200 w-full min-w-[80px] truncate focus:outline-none"
+            placeholder="New KB"
           />
-          
+
+          {/* Unsaved-changes dot */}
+          {isDirty && (
+            <span
+              className="mr-1 h-2 w-2 shrink-0 rounded-full bg-amber-400 animate-pulse"
+              title="Unsaved changes"
+              aria-label="Unsaved changes"
+            />
+          )}
+
           <ChevronDown className="mr-2 shrink-0" />
         </div>
 
@@ -88,83 +113,82 @@ export default function KBToolbar({
           tabIndex={0}
           className="dropdown-content menu z-[1] w-64 p-2 shadow border border-slate-700 bg-slate-800 text-slate-200"
         >
-          {/* New KB */}
           <li>
-              <button onClick={onCreateNewKB} disabled={disabled}>
-                <Plus size={16} />
-                <span>New KB</span>
-              </button>
+            <button onClick={handleCreateNew} disabled={disabled}>
+              <Plus size={16} />
+              <span>New KB</span>
+            </button>
           </li>
 
-          {/* Saved KBs */}
+          <li className="my-1 h-px bg-slate-700" aria-hidden="true" />
+
           <li className="block p-0">
-          <div className="my-1 max-h-[4.5rem] overflow-y-auto">
-            {savedKBs.length === 0 ? (
-              <div className="w-full">
-                <button
-                  className="w-full text-left text-slate-500"
-                  disabled
-                >
+            <div className="max-h-[9rem] overflow-y-auto">
+              {savedKBs.length === 0 ? (
+                <div className="px-2 py-1 text-sm text-slate-500">
                   No saved KBs
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col w-full">
-                {savedKBs.map((kb) => (
-                  <div
-                    key={kb.id}
-                    className="flex w-full flex-row items-center"
-                  >
-                    {/* KB name */}
-                    <button
-                      onClick={() => handleLoadKB(kb)}
-                      disabled={disabled}
-                      className="flex min-w-0 flex-1 flex-row items-center gap-2 text-left"
-                    >
-                      <List size={16} className="shrink-0" />
+                </div>
+              ) : (
+                <div className="flex flex-col w-full">
+                  {savedKBs.map((kb) => {
+                    const isCurrent = kb.id === currentKBID;
+                    return (
+                      <div
+                        key={kb.id}
+                        className={`flex w-full flex-row items-center rounded ${
+                          isCurrent ? "bg-slate-700/60" : ""
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleLoadKB(kb)}
+                          disabled={disabled}
+                          className="flex min-w-0 flex-1 flex-row items-center gap-2 text-left"
+                          title={kb.name}
+                        >
+                          <List size={16} className="shrink-0" />
+                          <span className="min-w-0 truncate">{kb.name}</span>
+                        </button>
 
-                      <span className="min-w-0 truncate">
-                        {kb.name}
-                      </span>
-                    </button>
-
-                    {/* Delete */}
-                    <button
-                      onClick={(e) => handleDeleteKB(e, kb)}
-                      disabled={disabled}
-                      className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-slate-400 hover:bg-transparent hover:text-red-400"
-                      title="Delete KB"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                        <button
+                          onClick={(e) => handleDeleteKB(e, kb)}
+                          disabled={disabled}
+                          className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-slate-400 hover:bg-transparent hover:text-red-400"
+                          title="Delete KB"
+                          aria-label={`Delete ${kb.name}`}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </li>
         </ul>
-
       </div>
-      
+
       <div className="flex gap-2">
         <button
           onClick={handleImport}
           disabled={disabled}
           className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Import KB from file"
         >
           <Upload size={16} />
-          Import KB
+          Import
         </button>
 
         <button
-          onClick={handleExport}
+          onClick={onExport}
           disabled={disabled || !hasContent}
           className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Export KB to file"
         >
           <Download size={16} />
-          Export KB
+          Export
         </button>
+
       </div>
     </div>
   );
