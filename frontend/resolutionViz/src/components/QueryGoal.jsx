@@ -7,11 +7,11 @@ export default function QueryGoal({
   return (
     <section className="shrink-0">
 
-      <h2 className="mb-2 text-sm font-semibold text-slate-200">
+      <h2 className="mb-2 text-sm font-semibold text-base-content">
         Query Goal
       </h2>
 
-      <div className="flex overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
+      <div className="flex overflow-hidden rounded-xl border border-base-300 bg-base-100">
 
         <input
           type="text"
@@ -27,9 +27,9 @@ export default function QueryGoal({
             py-3
             font-mono
             text-sm
-            text-slate-300
+            text-base-content
             outline-none
-            placeholder:text-slate-700
+            placeholder:text-base-content/30
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}
         />

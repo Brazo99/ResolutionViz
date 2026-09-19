@@ -1,10 +1,67 @@
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
+
 @plugin "daisyui" {
-  themes: dark --default;
+  themes: light --default, dark;
 }
 
+/* --------------------------------------------------
+   ResolutionViz graph theme
+-------------------------------------------------- */
+
+:root {
+  --rv-node-kb-bg: #f1f5f9;
+  --rv-node-kb-text: #334155;
+  --rv-node-kb-border: #94a3b8;
+
+  --rv-node-derived-bg: #f5f3ff;
+  --rv-node-derived-text: #4c1d95;
+  --rv-node-derived-border: #8b7cf6;
+
+  --rv-node-resolution-bg: #eef2ff;
+  --rv-node-resolution-text: #4338ca;
+  --rv-node-resolution-border: #6366f1;
+  --rv-node-resolution-shadow: rgba(99, 102, 241, 0.12);
+
+  --rv-node-contradiction-bg: #fef2f2;
+  --rv-node-contradiction-text: #991b1b;
+  --rv-node-contradiction-border: #ef4444;
+  --rv-node-contradiction-shadow: rgba(239, 68, 68, 0.20);
+
+  --rv-node-shadow: rgba(15, 23, 42, 0.12);
+
+  --rv-edge-parent: #94a3b8;
+  --rv-edge-derived: #8b7cf6;
+  --rv-edge-contradiction: #ef4444;
+}
+
+
+[data-theme="dark"] {
+  --rv-node-kb-bg: #0f1b2d;
+  --rv-node-kb-text: #dbeafe;
+  --rv-node-kb-border: #334e68;
+
+  --rv-node-derived-bg: #17152b;
+  --rv-node-derived-text: #ede9fe;
+  --rv-node-derived-border: #7c6ee6;
+
+  --rv-node-resolution-bg: #131b30;
+  --rv-node-resolution-text: #ddd6fe;
+  --rv-node-resolution-border: #6366f1;
+  --rv-node-resolution-shadow: rgba(99, 102, 241, 0.12);
+
+  --rv-node-contradiction-bg: #2a1218;
+  --rv-node-contradiction-text: #fecaca;
+  --rv-node-contradiction-border: #ef4444;
+  --rv-node-contradiction-shadow: rgba(239, 68, 68, 0.20);
+
+  --rv-node-shadow: rgba(0, 0, 0, 0.25);
+
+  --rv-edge-parent: #475569;
+  --rv-edge-derived: #8b7cf6;
+  --rv-edge-contradiction: #ef4444;
+}
 
 html,
 body,

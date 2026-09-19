@@ -6,22 +6,56 @@ import {
   BackgroundVariant,
   useReactFlow,
 } from "@xyflow/react";
-import {useMemo, useEffect, useRef} from "react";
+import { useMemo, useEffect, useRef, useState } from "react";
 import "@xyflow/react/dist/style.css";
+
 import { convertStepsToGraph } from "../../utils/graph/convertStepsToGraph";
 
-function ResolutionGraphContent({clauses = [], steps = [],currentStep = 0}) {
+function ResolutionGraphContent({
+  clauses = [],
+  steps = [],
+  currentStep = 0,
+}) {
   const { fitView } = useReactFlow();
   const previousStep = useRef(currentStep);
-  const { nodes, edges } = useMemo(
-    () => convertStepsToGraph(clauses, steps, currentStep),
-    [clauses, steps, currentStep]
+
+  const [theme, setTheme] = useState(
+    () => document.documentElement.getAttribute("data-theme") || "dark"
   );
 
-   /*
-   * Keep the viewport following the proof.
-   * fitView recalculates the visible graph and smoothly
-   * moves the viewport to keep the proof visible.
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const currentTheme =
+        document.documentElement.getAttribute("data-theme") || "dark";
+
+      setTheme(currentTheme);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const isDark = theme === "dark";
+
+  const { nodes, edges } = useMemo(
+    () =>
+      convertStepsToGraph(
+        clauses,
+        steps,
+        currentStep,
+        isDark
+      ),
+    [clauses, steps, currentStep, isDark]
+  );
+
+  /*
+   * Re-fit the graph whenever the visible graph changes.
+   *
+   * This preserves the animated movement during playback.
    */
   useEffect(() => {
     if (!nodes.length) return;
@@ -29,17 +63,18 @@ function ResolutionGraphContent({clauses = [], steps = [],currentStep = 0}) {
     const frame = requestAnimationFrame(() => {
       fitView({
         padding: 0.25,
-        duration: 600, //This is makes the viewport movement smooth.
+        duration: 600,
         minZoom: 0.25,
-        maxZoom: 1.5
+        maxZoom: 1.5,
       });
     });
 
     previousStep.current = currentStep;
 
-    return () => {cancelAnimationFrame(frame);};
+    return () => {
+      cancelAnimationFrame(frame);
+    };
   }, [nodes, edges, currentStep, fitView]);
-
 
   return (
     <div className="h-full w-full">
@@ -47,14 +82,13 @@ function ResolutionGraphContent({clauses = [], steps = [],currentStep = 0}) {
         nodes={nodes}
         edges={edges}
         proOptions={{ hideAttribution: true }}
-        colorMode="system"
+        colorMode={isDark ? "dark" : "light"}
       >
         <Background
           variant={BackgroundVariant.Dots}
-          bgColor="#020617"
-          color="#020617"
           gap={20}
           size={1.5}
+          color={isDark ? "#334155" : "#cbd5e1"}
         />
 
         <Controls />
@@ -62,7 +96,6 @@ function ResolutionGraphContent({clauses = [], steps = [],currentStep = 0}) {
     </div>
   );
 }
-
 
 export default function ResolutionGraph(props) {
   return (

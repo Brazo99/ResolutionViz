@@ -80,7 +80,7 @@ export default function ResolutionPanel({ result, isLoading = false }) {
   const showResult = hasCompleted && isSatisfiable !== null;
 
   return (
-    <section className="flex flex-col h-full rounded-2xl border border-base-300 bg-slate-900 p-5 gap-2">
+    <section className="flex h-full flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-5">
       <h2 className="mb-3 text-base font-semibold flex-shrink-0">
         Resolution Visualization
       </h2>
@@ -95,7 +95,7 @@ export default function ResolutionPanel({ result, isLoading = false }) {
 
       {/* Playback information + controls */}
       <div className="flex flex-col items-center gap-2 pt-2">
-        <p className="text-xs text-slate-400">{currentStepLabel}</p>
+        <p className="text-xs text-base-content/60">{currentStepLabel}</p>
 
         <PlaybackControls
           onBack={handleBack}

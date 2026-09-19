@@ -1,82 +1,70 @@
 export const NODE_STYLES = {
-    // Original knowledge-base clauses
-    kb: {
-        background: "#0f1b2d",
-        color: "#dbeafe",
-        border: "1px solid #334e68",
-        borderRadius: "8px",
-        boxShadow:
-            "0 4px 14px rgba(0, 0, 0, 0.25)",
-        padding: "12px 20px",
-        fontSize: "15px",
-        fontWeight: "600",
-        width: 160,
-        textAlign: "center",
-    },
+  kb: {
+    background: "var(--rv-node-kb-bg)",
+    color: "var(--rv-node-kb-text)",
+    border: "1px solid var(--rv-node-kb-border)",
+    borderRadius: "8px",
+    boxShadow: "0 4px 14px var(--rv-node-shadow)",
+    padding: "12px 20px",
+    fontSize: "15px",
+    fontWeight: "600",
+    width: 160,
+    textAlign: "center",
+  },
 
-    // Clauses produced by resolution
-    derived: {
-        background: "#17152b",
-        color: "#ede9fe",
-        border: "1px solid #7c6ee6",
-        borderRadius: "8px",
-        boxShadow:
-            "0 4px 16px rgba(0, 0, 0, 0.3)",
-        padding: "12px 20px",
-        fontSize: "15px",
-        fontWeight: "600",
-        width: 160,
-        textAlign: "center",
-    },
+  derived: {
+    background: "var(--rv-node-derived-bg)",
+    color: "var(--rv-node-derived-text)",
+    border: "1px solid var(--rv-node-derived-border)",
+    borderRadius: "8px",
+    boxShadow: "0 4px 16px var(--rv-node-shadow)",
+    padding: "12px 20px",
+    fontSize: "15px",
+    fontWeight: "600",
+    width: 160,
+    textAlign: "center",
+  },
 
-    // Resolution operation
-    resolution: {
-        background: "#131b30",
-        color: "#ddd6fe",
-        border: "1px solid #6366f1",
-        borderRadius: "8px",
-        boxShadow:
-            "0 0 18px rgba(99, 102, 241, 0.12)",
-        padding: "12px 20px",
-        fontSize: "13px",
-        fontWeight: "600",
-        width: 180,
-        textAlign: "center",
-    },
+  resolution: {
+    background: "var(--rv-node-resolution-bg)",
+    color: "var(--rv-node-resolution-text)",
+    border: "1px solid var(--rv-node-resolution-border)",
+    borderRadius: "8px",
+    boxShadow: "0 0 18px var(--rv-node-resolution-shadow)",
+    padding: "12px 20px",
+    fontSize: "13px",
+    fontWeight: "600",
+    width: 180,
+    textAlign: "center",
+  },
 
-    // Empty clause / contradiction
-    contradiction: {
-        background: "#2a1218",
-        color: "#fecaca",
-        border: "1px solid #ef4444",
-        borderRadius: "8px",
-        boxShadow:
-            "0 0 24px rgba(239, 68, 68, 0.20)",
-        padding: "13px 20px",
-        fontSize: "15px",
-        fontWeight: "700",
-        width: 180,
-        textAlign: "center",
-    },
+  contradiction: {
+    background: "var(--rv-node-contradiction-bg)",
+    color: "var(--rv-node-contradiction-text)",
+    border: "1px solid var(--rv-node-contradiction-border)",
+    borderRadius: "8px",
+    boxShadow: "0 0 24px var(--rv-node-contradiction-shadow)",
+    padding: "13px 20px",
+    fontSize: "15px",
+    fontWeight: "700",
+    width: 180,
+    textAlign: "center",
+  },
 };
 
-
 export const EDGE_STYLES = {
-    // Parent clause -> resolution operation
-    parent: {
-        stroke: "#475569",
-        strokeWidth: 1.5,
-    },
+  parent: {
+    stroke: "var(--rv-edge-parent)",
+    strokeWidth: 1.5,
+  },
 
-    // Resolution operation -> derived clause
-    derived: {
-        stroke: "#8b7cf6",
-        strokeWidth: 2,
-    },
+  derived: {
+    stroke: "var(--rv-edge-derived)",
+    strokeWidth: 2,
+  },
 
-    // Resolution operation -> contradiction
-    contradiction: {
-        stroke: "#ef4444",
-        strokeWidth: 2,
-    },
+  contradiction: {
+    stroke: "var(--rv-edge-contradiction)",
+    strokeWidth: 2,
+  },
 };

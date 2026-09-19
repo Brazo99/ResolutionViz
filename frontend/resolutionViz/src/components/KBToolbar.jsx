@@ -77,8 +77,8 @@ export default function KBToolbar({
           role="button"
           aria-haspopup="listbox"
           aria-label="Knowledge base selector"
-          className={`btn btn-sm border-slate-700 bg-slate-800 text-slate-200 max-w-[240px] p-0 ${
-            disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-slate-700"
+          className={`btn btn-sm border-base-300 bg-base-100 text-base-content max-w-[240px] p-0 ${
+            disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-base-200"
           }`}
         >
           <Plus size={16} className="ml-2 shrink-0" />
@@ -92,7 +92,7 @@ export default function KBToolbar({
             onBlur={() => onSaveKBName?.()}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}
-            className="bg-transparent border-none outline-none text-slate-200 w-full min-w-[80px] truncate focus:outline-none"
+            className="bg-transparent border-none outline-none text-base-content w-full min-w-[80px] truncate focus:outline-none"
             placeholder="New KB"
           />
 
@@ -111,7 +111,7 @@ export default function KBToolbar({
         {/* Dropdown Menu */}
         <ul
           tabIndex={0}
-          className="dropdown-content menu z-[1] w-64 p-2 shadow border border-slate-700 bg-slate-800 text-slate-200"
+          className="dropdown-content menu z-[1] w-64 border border-base-300 bg-base-100 p-2 text-base-content shadow"
         >
           <li>
             <button onClick={handleCreateNew} disabled={disabled}>
@@ -120,12 +120,12 @@ export default function KBToolbar({
             </button>
           </li>
 
-          <li className="my-1 h-px bg-slate-700" aria-hidden="true" />
+          <li className="my-1 h-px bg-base-200" aria-hidden="true" />
 
           <li className="block p-0">
             <div className="max-h-[9rem] overflow-y-auto">
               {savedKBs.length === 0 ? (
-                <div className="px-2 py-1 text-sm text-slate-500">
+                <div className="px-2 py-1 text-sm text-base-content/50">
                   No saved KBs
                 </div>
               ) : (
@@ -136,7 +136,7 @@ export default function KBToolbar({
                       <div
                         key={kb.id}
                         className={`flex w-full flex-row items-center rounded ${
-                          isCurrent ? "bg-slate-700/60" : ""
+                          isCurrent ? "bg-base-200" : ""
                         }`}
                       >
                         <button
@@ -152,7 +152,7 @@ export default function KBToolbar({
                         <button
                           onClick={(e) => handleDeleteKB(e, kb)}
                           disabled={disabled}
-                          className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-slate-400 hover:bg-transparent hover:text-red-400"
+                          className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-base-content/60 hover:bg-transparent hover:text-red-400"
                           title="Delete KB"
                           aria-label={`Delete ${kb.name}`}
                         >
@@ -172,7 +172,7 @@ export default function KBToolbar({
         <button
           onClick={handleImport}
           disabled={disabled}
-          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Import KB from file"
         >
           <Upload size={16} />
@@ -182,7 +182,7 @@ export default function KBToolbar({
         <button
           onClick={onExport}
           disabled={disabled || !hasContent}
-          className="btn btn-sm border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Export KB to file"
         >
           <Download size={16} />

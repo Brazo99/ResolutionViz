@@ -65,7 +65,7 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
   return (
     <div
       ref={editorRef}
-      className="h-full min-h-0 flex-1 overflow-y-auto bg-slate-950"
+      className="h-full min-h-0 flex-1 overflow-y-auto bg-base-300"
     >
       <div className="flex min-h-full">
 
@@ -80,7 +80,7 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
             font-mono
             text-sm
             leading-6
-            text-slate-600
+            text-base-content/40
           "
         >
           {lines.map((_, index) => {
@@ -97,8 +97,8 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
                 }}
                 className={
                   isError
-                    ? "font-bold text-red-500"
-                    : "text-slate-600"
+                    ? "font-bold text-error"
+                    : "text-base-content/40"
                 }
               >
                 {lineNumber}
@@ -129,9 +129,9 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
             text-sm
             leading-6
             outline-none
-            placeholder:text-slate-700
+            placeholder:text-base-content/30
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
-            ${errorLine ? "text-red-300" : "text-slate-400"}
+            ${errorLine ? "text-error" : "text-base-content/70"}
           `}
         />
       </div>
