@@ -1,93 +1,1393 @@
-# ResViz
+# ResolutionViz
 
+**ResolutionViz** is an interactive web-based visualization tool for **propositional-logic resolution**. It is designed as an educational application that makes the resolution process easier to understand by transforming logical formulas into clauses and visually demonstrating how resolution derives a contradiction or determines satisfiability.
 
+The application combines a **Python/FastAPI backend** for parsing and solving propositional formulas with a **React frontend** for interactive visualization of the resolution process.
 
-## Getting started
+---
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Table of Contents
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+* [Overview](#overview)
+* [Features](#features)
+* [How It Works](#how-it-works)
+* [Resolution Process](#resolution-process)
+* [System Architecture](#system-architecture)
+* [Technology Stack](#technology-stack)
+* [Project Structure](#project-structure)
+* [Getting Started](#getting-started)
 
-## Add your files
+  * [Prerequisites](#prerequisites)
+  * [Clone the Repository](#clone-the-repository)
+  * [Backend Setup](#backend-setup)
+  * [Frontend Setup](#frontend-setup)
+* [Running the Application](#running-the-application)
+* [Using ResolutionViz](#using-resolutionviz)
+* [Input Syntax](#input-syntax)
+* [Example](#example)
+* [API](#api)
+* [Resolution Visualization](#resolution-visualization)
+* [Project Design](#project-design)
+* [Development](#development)
+* [Testing](#testing)
+* [Contributing](#contributing)
+* [License](#license)
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+---
 
+## Overview
+
+ResolutionViz provides a visual representation of the **propositional resolution theorem-proving process**.
+
+Instead of displaying only the final result, the application exposes the intermediate stages of the reasoning process:
+
+```text
+Logical Formulas --> Lexer --> Parser --> AST --> CNF Conversion --> Clauses --> Set-of-Support Resolution --> Resolution Steps --> Interactive Graph
 ```
-cd existing_repo
-git remote add origin https://gitlab.cs.uct.ac.za/blyble001/resviz.git
-git branch -M main
-git push -uf origin main
+
+This allows users to see not only **whether a goal follows from a knowledge base**, but also **how the resolution procedure reaches its conclusion**.
+
+---
+
+## Features
+
+### Logical Formula Editor
+
+* Enter a knowledge base as multiple formulas.
+* Enter a separate query/goal.
+* Validate formulas while editing.
+* Display syntax errors and the corresponding input line.
+* Support propositional variables and logical operators.
+
+### Formula Processing
+
+ResolutionViz includes a complete logical-processing pipeline:
+
+* Lexical analysis
+* Parsing
+* Abstract syntax tree construction
+* Implication elimination
+* Biconditional elimination
+* Negation normal form conversion
+* Conjunctive normal form conversion
+* Clause extraction
+* Tautology detection
+
+### Resolution Engine
+
+The backend implements a **set-of-support resolution strategy**.
+
+The solver:
+
+1. Takes the knowledge base.
+2. Negates the goal.
+3. Converts the resulting formulas into CNF.
+4. Extracts clauses ordered by the goal/targert.
+5. Uses the negated goal as the initial support.
+6. Generates resolvents.
+7. Tracks the derivation of new clauses.
+8. Determines whether the empty clause can be derived.
+
+### Interactive Proof Visualization
+
+The frontend visualizes resolution as a graph using React Flow.
+
+The graph can show:
+
+* Initial clauses
+* Resolution-derived clauses
+* Parent-child relationships
+* Resolution pivots
+* Resolution edges
+* The derivation leading to the empty clause
+
+### Step-by-Step Playback
+
+Users can inspect the resolution process incrementally.
+
+Playback controls allow the user to:
+
+* Move forward through resolution steps.
+* Move backward through steps.
+* Play the derivation automatically.
+* Pause playback.
+* Reset the visualization.
+* Follow the proof as new clauses are introduced.
+
+### Annotations
+
+The interface supports annotations that can be used while studying or demonstrating a resolution proof.
+
+### Light and Dark Themes
+
+ResolutionViz includes light and dark themes with persistent theme selection.
+
+The interface uses a consistent design system across:
+
+* Formula editing
+* Query input
+* Resolution controls
+* Graph visualization
+* Annotations
+* Result panels
+
+---
+
+## How It Works
+
+ResolutionViz follows the standard resolution-refutation approach.
+
+Given a knowledge base:
+
+$$
+KB = F_1 \land F_2 \land \dots \land F_n
+$$
+
+and a goal:
+
+$$
+G
+$$
+
+the system attempts to determine whether:
+
+$$
+KB \models G
+$$
+
+Instead of directly proving the goal, resolution works by assuming the negation of the goal:
+
+$$
+KB \land \neg G
+$$
+
+The resulting formulas are converted into CNF and represented as clauses.
+
+The resolution procedure then attempts to derive the **empty clause**:
+
+$$
+\Box
+$$
+
+If the empty clause is derived, a contradiction has been found, demonstrating that:
+
+$$
+KB \models G
+$$
+
+---
+
+## Resolution Process
+
+The resolution engine follows this general pipeline:
+
+### 1. Parse the Input
+
+The backend tokenizes and parses each logical formula into an abstract syntax tree.
+
+For example:
+
+```text
+(A -> B) & A & !B
 ```
 
-## Integrate with your tools
+is transformed into an internal AST representation.
 
-- [ ] [Set up project integrations](https://gitlab.cs.uct.ac.za/blyble001/resviz/-/settings/integrations)
+### 2. Combine the Knowledge Base
 
-## Collaborate with your team
+Multiple formulas entered by the user are combined into a single logical expression representing the knowledge base.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### 3. Negate the Goal
 
-## Test and Deploy
+The query is negated before resolution.
 
-Use the built-in continuous integration in GitLab.
+For example:
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```text
+Goal: S
+```
 
-***
+becomes:
 
-# Editing this README
+```text
+!S
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### 4. Convert to CNF
 
-## Suggestions for a good README
+The backend performs the required logical transformations:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```text
+Iff elimination
+      ↓
+Implication elimination
+      ↓
+Negation pushing
+      ↓
+Distribution
+      ↓
+Conjunctive Normal Form
+```
 
-## Name
-Choose a self-explaining name for your project.
+### 5. Extract Clauses
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+The CNF expression is converted into a collection of clauses.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+A clause is internally represented using literals such as:
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```python
+frozenset({
+    ("A", False),
+    ("B", True)
+})
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+which corresponds to:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+$$
+A \lor \neg B
+$$
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 6. Apply Set-of-Support Resolution
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+ResolutionViz uses the **set-of-support (SOS) strategy** to guide the resolution process.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+The purpose of the SOS strategy is to restrict resolution to clauses that are relevant to the negated goal. Instead of resolving every possible pair of clauses, the algorithm maintains a distinction between:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+* **Usable clauses** — clauses originating from the knowledge base.
+* **Support clauses** — clauses derived from the negated goal and subsequent resolution steps.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+The resolution process is therefore directed toward proving the original goal by attempting to derive a contradiction from:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+$$
+KB \land \neg G
+$$
 
-## License
-For open source projects, say how it is licensed.
+---
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+#### Initial Sets
+
+After CNF conversion, the clauses are divided into two conceptual sets.
+
+Given:
+
+$$
+KB \land \neg G
+$$
+
+the initial configuration is:
+
+```text
+Knowledge Base Clauses
+        │
+        ▼
+   Usable Clauses
+
+Negated Goal
+        │
+        ▼
+  Support Clauses
+```
+
+For example, if the goal is:
+
+```text
+S
+```
+
+the negated goal becomes:
+
+```text
+!S
+```
+
+The initial support set therefore contains:
+
+```text
+[!S]
+```
+
+while the clauses obtained from the knowledge base form the usable set.
+
+---
+
+#### Selecting Clauses
+
+At each iteration, the resolution engine selects a clause from the support set and attempts to resolve it with compatible clauses from the usable set and previously derived clauses.
+
+Two clauses are compatible when they contain complementary literals.
+
+For example:
+
+```text
+[S]
+[!S, D, L]
+```
+
+contain the complementary literals:
+
+```text
+S
+!S
+```
+
+so they can be resolved using `S` as the pivot.
+
+The resulting resolvent is:
+
+```text
+[D, L]
+```
+
+or logically:
+
+$$
+D \lor L
+$$
+
+The newly generated clause becomes part of the support set.
+
+---
+
+#### Resolution Rule
+
+The basic propositional resolution rule can be expressed as:
+
+$$
+\frac{A \lor P \qquad B \lor \neg P}
+     {A \lor B}
+$$
+
+where \(P\) is the **pivot literal**.
+
+For example:
+
+$$
+S
+$$
+
+and
+
+$$
+\neg S \lor D \lor L
+$$
+
+resolve to:
+
+$$
+D \lor L
+$$
+
+The pivot used for this operation is:
+
+```text
+S
+```
+
+ResolutionViz records this information so that the frontend can display the derivation.
+
+---
+
+#### Maintaining the Support Set
+
+Each newly derived resolvent is added to the support set.
+
+Conceptually:
+
+```text
+Initial Support
+      │
+      ▼
+    [!S]
+      │
+      │ resolve
+      ▼
+   [D, L]
+      │
+      │ resolve
+      ▼
+   [D, ...]
+      │
+      ▼
+     ...
+      │
+      ▼
+     [ ]
+```
+
+This means that newly generated clauses can themselves participate in later resolution operations.
+
+The process continues until one of two conditions is reached:
+
+1. The **empty clause** is derived.
+2. No new useful resolvents can be generated.
+
+---
+
+#### Empty Clause
+
+The empty clause is represented internally as an empty clause:
+
+```text
+[]
+```
+
+and mathematically as:
+
+$$
+\Box
+$$
+
+The empty clause represents a contradiction.
+
+For example:
+
+```text
+[P]
+[!P]
+```
+
+resolve to:
+
+```text
+[]
+```
+
+because all literals are eliminated during resolution.
+
+When the empty clause is derived from:
+
+$$
+KB \land \neg G
+$$
+
+the conjunction is inconsistent. Therefore:
+
+$$
+KB \models G
+$$
+
+In ResolutionViz, the empty clause represents the terminating node of a successful refutation proof.
+
+---
+
+#### Resolution Trace
+
+The backend records every resolution operation so that the frontend can reconstruct the proof.
+
+Each step contains information similar to:
+
+```json
+{
+  "step": 1,
+  "clause1": ["S"],
+  "clause2": ["!S", "D", "L"],
+  "pivot": "S",
+  "resolvent": ["D", "L"]
+}
+```
+
+This trace allows ResolutionViz to distinguish between:
+
+* The clauses being resolved
+* The pivot used
+* The resulting clause
+* The order in which clauses were derived
+
+The frontend uses this information to construct the interactive proof graph.
+
+---
+
+#### Example
+
+Consider the knowledge base:
+
+```text
+((A | T) -> Q) & ((Q & E) -> D)
+((D & L) -> S)
+A
+E
+L
+```
+
+with:
+
+```text
+Goal: S
+```
+
+The solver first adds the negated goal:
+
+```text
+!S
+```
+
+The relevant clause from the knowledge base can be represented as:
+
+```text
+[!S, D, L]
+```
+
+The first resolution operation is therefore:
+
+```text
+[!S]
+[!S, D, L]
+```
+
+More precisely, after converting the negated goal into the clause representation used by the resolution engine, the complementary literal pairing is used to produce the appropriate resolvent.
+
+A typical derivation can then continue by resolving newly derived clauses with clauses containing complementary literals.
+
+The important property of the SOS strategy is that **newly derived clauses are introduced through the support set and drive subsequent resolution** rather than blindly resolving every possible pair of clauses.
+
+---
+
+#### Why Set-of-Support Is Used
+
+A naive resolution procedure could attempt to resolve every possible pair of clauses. As the number of clauses increases, this can create a large number of unnecessary resolution operations.
+
+The set-of-support strategy provides a way to focus the search.
+
+The intuition is:
+
+```text
+Knowledge Base
+      │
+      │ provides facts/rules
+      ▼
+Usable Clauses
+      ▲
+      │
+   Resolution
+      │
+      ▼
+Support Set
+      │
+      ▼
+ Derived Clauses
+      │
+      ▼
+  Contradiction?
+```
+
+Because the support set originates from the negated goal, the resulting proof search is directed toward finding a contradiction relevant to that goal.
+
+---
+
+#### Proof Traceback
+
+ResolutionViz also keeps track of the dependencies between derived clauses.
+
+After the empty clause is found, the complete resolution trace may contain steps that are not required for the final proof.
+
+The backend can therefore perform a **traceback** from the empty clause to identify the clauses and resolution steps that contributed to the contradiction.
+
+Conceptually:
+
+```text
+              [ ]
+               ▲
+               │
+          [A, B, ...]
+          /          \
+         /            \
+      [A]             [!A, B]
+       ▲                  ▲
+       │                  │
+    earlier             earlier
+     steps               steps
+```
+
+The traceback process works backward from the empty clause and follows its parent clauses until it reaches the initial clauses.
+
+This produces a smaller proof containing the resolution steps necessary for the final contradiction.
+
+The frontend can then use this reduced proof when presenting the resolution visualization.
+
+---
+
+#### Summary of the SOS Algorithm
+
+The overall process can be summarized as:
+
+```text
+1. Start with KB ∧ ¬G
+          │
+          ▼
+2. Convert to CNF
+          │
+          ▼
+3. Extract clauses
+          │
+          ▼
+4. Separate usable clauses
+   from support clauses
+          │
+          ▼
+5. Select a support clause
+          │
+          ▼
+6. Find a compatible clause
+          │
+          ▼
+7. Resolve on a complementary literal
+          │
+          ▼
+8. Generate a resolvent
+          │
+          ▼
+9. Add the resolvent to support
+          │
+          ▼
+10. Repeat
+          │
+       ┌──┴──┐
+       │     │
+       ▼     ▼
+      [ ]   No new clauses
+       │     │
+       ▼     ▼
+  Contradiction  Search stops
+```
+
+For ResolutionViz, every important operation in this process is recorded as part of the resolution trace. This makes the algorithm suitable not only for automated theorem proving, but also for **interactive visualization and educational demonstration**.
+
+### 7. Visualize the Proof
+
+The React application transforms the resolution trace into a graph.
+
+The graph allows the user to follow the derivation step by step.
+
+---
+
+## System Architecture
+
+ResolutionViz is divided into two major applications:
+
+```text
+┌──────────────────────────────────────────────┐
+│                  ResolutionViz               │
+├───────────────────────┬──────────────────────┤
+│                       │                      │
+│       Frontend        │       Backend        │
+│                       │                      │
+│ React + Vite          │ Python + FastAPI     │
+│ Tailwind CSS          │ Lexer                │
+│ DaisyUI               │ Parser               │
+│ React Flow            │ AST                  │
+│ Lucide React          │ CNF Converter        │
+│                       │ Clause Engine        │
+│                       │ Resolution Engine    │
+│                       │                      │
+└───────────────────────┴──────────────────────┘
+```
+
+### Frontend
+
+The frontend is responsible for:
+
+* User interaction
+* Formula editing
+* Query input
+* API requests
+* Resolution controls
+* Playback
+* Graph rendering
+* Annotations
+* Theme management
+
+### Backend
+
+The backend is responsible for:
+
+* Tokenization
+* Parsing
+* AST construction
+* Formula transformation
+* CNF conversion
+* Clause generation
+* Resolution
+* Proof tracing
+* Result serialization
+
+---
+
+## Technology Stack
+
+### Frontend
+
+| Technology   | Purpose                            |
+| ------------ | ---------------------------------- |
+| React        | User interface                     |
+| Vite         | Frontend development/build tooling |
+| JavaScript   | Application language               |
+| Tailwind CSS | Styling                            |
+| DaisyUI      | UI components/theme utilities      |
+| React Flow   | Resolution graph visualization     |
+| Lucide React | Icons                              |
+
+### Backend
+
+| Technology | Purpose                     |
+| ---------- | --------------------------- |
+| Python     | Backend language            |
+| FastAPI    | REST API                    |
+| Uvicorn    | ASGI server                 |
+| Pydantic   | Request/response validation |
+| Setuptools | Python packaging            |
+
+---
+
+## Project Structure
+
+The project is organized into separate frontend and backend applications.
+
+```text
+resviz/
+│
+├── backend/
+│   │
+│   ├── api/
+│   │   ├── main.py
+│   │   └── solve.py
+│   │
+│   ├── logicEngine/
+│   │   ├── lexer.py
+│   │   ├── parser.py
+│   │   ├── ast.py
+│   │   ├── cnf.py
+│   │   ├── clauses.py
+│   │   ├── resolution.py
+│   │   └── services.py
+│   │
+│   └── pyproject.toml
+│
+└── frontend/
+    │
+    └── resolutionViz/
+        │
+        ├── src/
+        │   ├── api/
+        │   ├── components/
+        │   ├── pages/
+        │   └── utils/
+        │
+        ├── package.json
+        └── vite.config.js
+```
+
+---
+
+# Getting Started
+
+## Prerequisites
+
+Make sure the following are installed:
+
+* Python 3.11+ recommended
+* Node.js
+* npm
+* Git
+
+Check your installations:
+
+```bash
+python --version
+node --version
+npm --version
+git --version
+```
+
+---
+
+## Clone the Repository
+
+```bash
+git clone https://gitlab.cs.uct.ac.za/blyble001/resviz
+cd resviz
+```
+
+---
+
+# Backend Setup
+
+Navigate to the backend directory:
+
+```bash
+cd backend
+```
+
+Create a virtual environment:
+
+### Windows
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+```bash
+.venv\Scripts\activate
+```
+
+### Linux/macOS
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Install the backend dependencies.
+
+If the project dependencies are defined in `pyproject.toml`:
+
+```bash
+pip install -e .
+```
+
+For development dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+> If editable installation is not configured for the current package layout, install the required dependencies directly and run the API from the backend root.
+
+---
+
+# Frontend Setup
+
+Navigate to the frontend:
+
+```bash
+cd frontend/resolutionViz
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+---
+
+# Running the Application
+
+ResolutionViz requires both the backend and frontend development servers.
+
+## Start the Backend
+
+From:
+
+```text
+backend/
+```
+
+run:
+
+```bash
+uvicorn api.main:api --reload
+```
+
+The backend will normally be available at:
+
+```text
+http://127.0.0.1:8000
+```
+
+FastAPI's interactive API documentation is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+## Start the Frontend
+
+From:
+
+```text
+frontend/resolutionViz/
+```
+
+run:
+
+```bash
+npm run dev
+```
+
+Vite will provide a local development URL, typically:
+
+```text
+http://localhost:5173
+```
+
+Open that address in a browser.
+
+---
+
+# Using ResolutionViz
+
+The typical workflow is:
+
+```text
+1. Enter Knowledge Base
+          ↓
+2. Enter Goal
+          ↓
+3. Validate formulas
+          ↓
+4. Run resolution
+          ↓
+5. Inspect result
+          ↓
+6. Step through proof
+          ↓
+7. Explore resolution graph
+```
+
+### Knowledge Base
+
+Enter one formula per line.
+
+For example:
+
+```text
+((A | T) -> Q) & ((Q & E) -> D)
+((D & L) -> S)
+A
+E
+L
+```
+
+### Goal
+
+Enter:
+
+```text
+S
+```
+
+### Run the Solver
+
+The application sends the knowledge base and goal to the FastAPI backend.
+
+The backend performs the resolution process and returns:
+
+* Tokens
+* AST
+* CNF
+* Clauses
+* Resolution steps
+* Result
+* Satisfiability information
+
+The frontend then uses this information to construct the visualization.
+
+---
+
+# Input Syntax
+
+ResolutionViz supports propositional formulas using the following operators.
+
+| Operator | Meaning  | Example   |    |    |
+| -------- | -------- | --------- | -- | -- |
+| `!`      | NOT      | `!A`      |    |    |
+| `&`      | AND      | `A & B`   |    |    |
+| `\|`      | OR       | `A \| B`   |    |    |
+| `->`     | IMPLIES  | `A -> B`  |    |    |
+| `<->`    | IFF      | `A <-> B` |    |    |
+| `(` `)`  | Grouping | `(A & B)` |    |    |
+
+Variables are represented using uppercase and lower single letters:
+
+```text
+A
+B
+C
+p
+q
+s
+```
+
+### Examples
+
+```text
+A & B
+```
+
+```text
+A | B
+```
+
+```text
+!A
+```
+
+```text
+A -> B
+```
+
+```text
+(A & B) -> C
+```
+
+```text
+A <-> B
+```
+
+Complex expressions can be constructed using combinations of these operators:
+
+```text
+((A | B) -> C) & (!D | E)
+```
+
+---
+
+# Example
+
+Consider the following knowledge base:
+
+```text
+((A | T) -> Q) & ((Q & E) -> D)
+((D & L) -> S)
+A
+E
+L
+```
+
+with the goal:
+
+```text
+S
+```
+
+ResolutionViz negates the goal:
+
+```text
+!S
+```
+
+and constructs:
+
+```text
+KB ∧ !S
+```
+
+After conversion to clauses, the resolution process can begin.
+
+An example resolution step may contain:
+
+```text
+Clause 1: [S]
+Clause 2: [!S, D, L]
+Pivot: S
+Resolvent: [D, L]
+```
+
+The frontend visualizes these relationships as nodes and edges in the proof graph.
+
+If the resolution procedure eventually derives:
+
+```text
+[]
+```
+
+this represents the empty clause:
+
+$$
+\Box
+$$
+
+and therefore a contradiction has been found.
+
+---
+
+# API
+
+The backend exposes a FastAPI interface for interacting with the resolution engine.
+
+## Solve Endpoint
+
+The solver accepts a knowledge base and a goal.
+
+Conceptually, the request has the following structure:
+
+```json
+{
+  "formula": [
+    "A",
+    "A -> B",
+    "B -> C"
+  ],
+  "goal": "C"
+}
+```
+
+The response contains information used by the frontend to display the resolution process.
+
+A response includes fields such as:
+
+```json
+{
+  "formula": [],
+  "goal": "C",
+  "tokens": [],
+  "ast": {},
+  "cnf": {},
+  "clauses": [],
+  "steps": [],
+  "result": true,
+  "is_satisfiable": "SATISFIABLE"
+}
+```
+
+
+## API Documentation
+
+When the backend is running, FastAPI automatically provides interactive API documentation:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Resolution Visualization
+
+The proof graph is implemented using **React Flow**.
+
+Each resolution clause can be represented as a graph node, while resolution relationships are represented by edges.
+
+Conceptually:
+
+```text
+       [!S]
+         │
+         │ resolve on S
+         ▼
+     [D ∨ L]
+         │
+         │
+         ▼
+     [L ∨ ...]
+         │
+         ▼
+         [ ]
+```
+
+The visualization is designed to make the logical dependency between clauses explicit.
+
+## Step Playback
+
+Resolution steps are progressively revealed during playback.
+
+This allows users to observe:
+
+```text
+Initial Clauses
+      ↓
+Step 1
+      ↓
+Step 2
+      ↓
+Step 3
+      ↓
+...
+      ↓
+Empty Clause
+```
+
+Rather than displaying the entire proof immediately, the interface can reveal the derivation incrementally.
+
+This is particularly useful for demonstrations and teaching.
+
+---
+
+# Project Design
+
+ResolutionViz separates **logical computation** from **visual presentation**.
+
+### Backend
+
+The backend answers:
+
+> What are the logical consequences of these formulas?
+
+### Frontend
+
+The frontend answers:
+
+> How can those logical operations be presented clearly and interactively?
+
+This separation makes the system easier to maintain and allows the resolution engine to be tested independently from the visualization layer.
+
+---
+
+## Backend Pipeline
+
+```text
+Input Formula
+     │
+     ▼
+   Lexer
+     │
+     ▼
+   Parser
+     │
+     ▼
+    AST
+     │
+     ▼
+Logical Transformations
+     │
+     ├── IFF elimination
+     ├── Implication elimination
+     ├── Negation propagation
+     └── Distribution
+     │
+     ▼
+    CNF
+     │
+     ▼
+   Clauses
+     │
+     ▼
+Set-of-Support Resolution
+     │
+     ▼
+ Resolution Trace
+     │
+     ▼
+   API Response
+```
+
+---
+
+## Frontend Pipeline
+
+```text
+API Response
+     │
+     ▼
+ResolutionPage
+     │
+     ├── KnowledgeBase
+     ├── QueryGoal
+     ├── KBToolbar
+     ├── SatisfiabilityButton
+     ├── ResolutionPanel
+     └── AnnotationsPanel
+             │
+             ▼
+       ResolutionGraph
+             │
+             ▼
+          React Flow
+```
+
+---
+
+# Development
+
+## Frontend
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Build the application:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+---
+
+## Backend
+
+Start FastAPI with automatic reload:
+
+```bash
+uvicorn api.main:api --reload
+```
+
+The `api` object is exposed from:
+
+```text
+api.main
+```
+
+---
+
+# Testing
+
+The resolution engine should be tested independently from the frontend.
+
+Important areas for testing include:
+
+
+---
+
+### Visualization
+
+* Improved automatic graph layout for large proofs
+* Better handling of very large proof trees
+* Clause highlighting
+* Animated resolution operations
+* More detailed edge labels
+* Improved navigation through long proofs
+* Proof minimization and explanation
+
+### Resolution Engine
+
+* More efficient clause selection
+* Additional resolution strategies
+* Improved proof minimization
+* Better handling of redundant clauses
+* Performance improvements for larger formulas
+
+---
+
+# Contributing
+
+# License
+
+This project is currently developed as an educational/software engineering project.
+
+---
+
+# Acknowledgements
+
+ResolutionViz uses the following open-source technologies:
+
+* React
+* Vite
+* FastAPI
+* Python
+* Tailwind CSS
+* DaisyUI
+* React Flow
+* Lucide React
+* Uvicorn
+
+---
+
+## ResolutionViz
+
+**An interactive visualization of propositional resolution.**
+
+> Transform formulas into clauses.
+> Resolve them step by step.
+> Visualize the proof.
