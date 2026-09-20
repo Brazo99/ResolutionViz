@@ -1,0 +1,29 @@
+site_name: ResolutionViz Documentation
+site_description: Documentation for the ResolutionViz propositional resolution visualizer
+site_author: ResolutionViz
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+            docstring_style: google
+            members_order: source
+            show_signature_annotations: true
+
+nav:
+  - Home: README.md
+  - API Reference: api.md
+  - Logic Engine: logic-engine.md
