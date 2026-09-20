@@ -1,4 +1,12 @@
-import { Download, Upload, Plus, ChevronDown, List, Trash2, Eraser, Save } from "lucide-react";
+import {
+  Download,
+  Upload,
+  Plus,
+  ChevronDown,
+  List,
+  Trash2,
+  Pencil,
+} from "lucide-react";
 import { useRef } from "react";
 
 export default function KBToolbar({
@@ -28,20 +36,27 @@ export default function KBToolbar({
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = ".txt,.kb";
+
     fileInput.onchange = (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
+
       const reader = new FileReader();
+
       reader.onload = (event) => {
         const content = event.target.result;
+
         const lines = content
           .split("\n")
           .map((l) => l.trim())
           .filter((l) => l.length > 0);
+
         onImport?.(lines);
       };
+
       reader.readAsText(file);
     };
+
     fileInput.click();
   };
 
@@ -69,19 +84,26 @@ export default function KBToolbar({
   };
 
   return (
-    <div className="flex shrink-0 items-center justify-between gap-2 flex-wrap">
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
       <div className="dropdown dropdown-start" ref={dropdownRef}>
-        {/* Editable Button Label */}
+        {/* Editable Knowledge Base Name */}
         <div
           tabIndex={disabled ? -1 : 0}
           role="button"
           aria-haspopup="listbox"
-          aria-label="Knowledge base selector"
-          className={`btn btn-sm border-base-300 bg-base-100 text-base-content max-w-[240px] p-0 ${
-            disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-base-200"
+          aria-label="Edit knowledge base name"
+          title="Edit knowledge base name"
+          className={`btn btn-sm max-w-[240px] border-base-300 bg-base-100 p-0 text-base-content ${
+            disabled
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-base-200"
           }`}
         >
-          <Plus size={16} className="ml-2 shrink-0" />
+          {/* Edit icon */}
+          <Pencil
+            size={15}
+            className="ml-2 shrink-0 text-base-content/60"
+          />
 
           <input
             type="text"
@@ -92,20 +114,24 @@ export default function KBToolbar({
             onBlur={() => onSaveKBName?.()}
             onClick={(e) => e.stopPropagation()}
             onFocus={(e) => e.stopPropagation()}
-            className="bg-transparent border-none outline-none text-base-content w-full min-w-[80px] truncate focus:outline-none"
+            className="w-full min-w-[80px] truncate border-none bg-transparent text-base-content outline-none focus:outline-none"
             placeholder="New KB"
+            aria-label="Knowledge base name"
           />
 
-          {/* Unsaved-changes dot */}
+          {/* Unsaved changes */}
           {isDirty && (
             <span
-              className="mr-1 h-2 w-2 shrink-0 rounded-full bg-amber-400 animate-pulse"
+              className="mr-1 h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-400"
               title="Unsaved changes"
               aria-label="Unsaved changes"
             />
           )}
 
-          <ChevronDown className="mr-2 shrink-0" />
+          <ChevronDown
+            size={18}
+            className="mr-2 shrink-0 text-base-content/60"
+          />
         </div>
 
         {/* Dropdown Menu */}
@@ -120,7 +146,10 @@ export default function KBToolbar({
             </button>
           </li>
 
-          <li className="my-1 h-px bg-base-200" aria-hidden="true" />
+          <li
+            className="my-1 h-px bg-base-200"
+            aria-hidden="true"
+          />
 
           <li className="block p-0">
             <div className="max-h-[9rem] overflow-y-auto">
@@ -129,9 +158,10 @@ export default function KBToolbar({
                   No saved KBs
                 </div>
               ) : (
-                <div className="flex flex-col w-full">
+                <div className="flex w-full flex-col">
                   {savedKBs.map((kb) => {
                     const isCurrent = kb.id === currentKBID;
+
                     return (
                       <div
                         key={kb.id}
@@ -146,13 +176,15 @@ export default function KBToolbar({
                           title={kb.name}
                         >
                           <List size={16} className="shrink-0" />
-                          <span className="min-w-0 truncate">{kb.name}</span>
+                          <span className="min-w-0 truncate">
+                            {kb.name}
+                          </span>
                         </button>
 
                         <button
                           onClick={(e) => handleDeleteKB(e, kb)}
                           disabled={disabled}
-                          className="btn btn-ghost btn-xs shrink-0 !flex !w-7 !min-h-7 !p-0 text-base-content/60 hover:bg-transparent hover:text-red-400"
+                          className="btn btn-ghost btn-xs shrink-0 !flex !min-h-7 !w-7 !p-0 text-base-content/60 hover:bg-transparent hover:text-red-400"
                           title="Delete KB"
                           aria-label={`Delete ${kb.name}`}
                         >
@@ -168,12 +200,13 @@ export default function KBToolbar({
         </ul>
       </div>
 
+      {/* Import / Export */}
       <div className="flex gap-2">
         <button
           onClick={handleImport}
           disabled={disabled}
-          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Import KB from file"
+          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:cursor-not-allowed disabled:opacity-50"
+          title="Import knowledge base from file"
         >
           <Upload size={16} />
           Import
@@ -182,13 +215,12 @@ export default function KBToolbar({
         <button
           onClick={onExport}
           disabled={disabled || !hasContent}
-          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Export KB to file"
+          className="btn btn-sm border-base-300 bg-base-100 text-base-content hover:bg-base-200 disabled:cursor-not-allowed disabled:opacity-50"
+          title="Export knowledge base to file"
         >
           <Download size={16} />
           Export
         </button>
-
       </div>
     </div>
   );
