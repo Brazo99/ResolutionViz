@@ -25,8 +25,7 @@ router = APIRouter()
 @router.post("/checkSatisfiability", response_model= SolutionResponse)
 
 async def solve_endpoint(request: FormulaRequest):
-    """Run the complete KB + negated goal resolution pipeline"""
-    """
+    """Run the complete KB + negated goal resolution pipeline
     Solve a propositional logic query using resolution.
 
     This endpoint accepts a knowledge base and a goal, processes the
