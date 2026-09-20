@@ -28,6 +28,7 @@ export default function LandingPage() {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <button
+              onClick={() => navigate("/docs")}
               className="flex items-center gap-2 rounded-full border-2 border-[#051a2b]/60 bg-gradient-to-b from-[#7db4d1] to-[#5f9ec0] px-6 py-2 text-xl font-black tracking-wider text-[#0c3a5e] uppercase shadow-md transition hover:from-[#8cc0da] hover:to-[#6faed0] active:scale-95 md:px-8 md:py-2.5 md:text-2xl"
             >
               <BookOpen size={24} />
@@ -35,6 +36,7 @@ export default function LandingPage() {
             </button>
 
             <button
+              onClick={() => navigate("/demo")}
               className="flex items-center gap-2 rounded-full border-2 border-[#051a2b]/60 bg-gradient-to-b from-[#7db4d1] to-[#5f9ec0] px-6 py-2 text-xl font-black tracking-wider text-[#0c3a5e] uppercase shadow-md transition hover:from-[#8cc0da] hover:to-[#6faed0] active:scale-95 md:px-8 md:py-2.5 md:text-2xl"
             >
               <PlayCircle size={24} />
