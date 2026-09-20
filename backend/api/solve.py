@@ -18,7 +18,6 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from logicEngine import services
 from logicEngine import lexer
-from logicEngine.parser import Parser
 from logicEngine.errors import LexerError, ParserError, ResVizError
 
 router = APIRouter()
