@@ -25,11 +25,10 @@ def test_invalid_character_raises_lexer_error():
     assert error.value.position == 2
     assert "Unexpected character '@'" in str(error.value)
 
-def test_lowercase_variable_is_rejected():
-    with pytest.raises(LexerError) as error:
-        tokenizer("a")
+def test_lowercase_variable_is_supported():
+    tokens = tokenizer("a")
 
-    assert error.value.position == 0
-    assert "Unexpected character 'a'" in str(error.value)
-
+    assert len(tokens) == 1
+    assert tokens[0].type == "VARIABLE"
+    assert tokens[0].value == "a"
     

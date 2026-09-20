@@ -20,13 +20,13 @@ def test_unsatisfiable_formula_is_detected():
     assert len(result["steps"]) > 0
 
 
-def test_satisfiable_formula_is_detected():
+def test_goal_entailment_is_detected():
     result = solve_formula(
         "A & B",
         "A"
     )
 
-    assert result["result"] is True
+    assert result["result"] is False
     assert result["goal"] == "A"
 
 

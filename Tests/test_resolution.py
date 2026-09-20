@@ -15,10 +15,15 @@ def test_resolving_complementary_literals():
 
     resolvents = engine.resolve(clause1, clause2)
 
-    assert frozenset({
+    assert len(resolvents) == 1
+    resolvent, pivot = resolvents[0]
+
+    assert resolvent == frozenset({
         ("B", False),
         ("C", False),
-    }) in resolvents
+    })
+
+    assert pivot == "A"
 
 
 def test_tautology_is_detected():
@@ -43,36 +48,86 @@ def test_non_tautology_is_not_detected_as_tautology():
 
 def test_direct_contradiction_is_unsatisfiable():
     engine = Resolution()
-    clauses = [
+    knowledge_base = [
         frozenset({("A", False)}),
+    ]
+
+    negated_goal = [
         frozenset({("A", True)}),
     ]
 
-    result = engine.resolution(clauses)
+    result = engine.set_of_support_resolution(
+        knowledge_base,
+        negated_goal,
+    )
 
     assert result is False
 
-
-def test_single_consistent_clause_is_satisfiable():
+def test_single_consistent_clause_does_not_produce_contradiction():
     engine = Resolution()
-    clauses = [
+
+    knowledge_base = [
         frozenset({("A", False)}),
     ]
 
-    result = engine.resolution(clauses)
-
-    assert result is True
-
-
-def test_resolution_records_steps():
-    engine = Resolution()
-    clauses = [
-        frozenset({("A", False)}),
-        frozenset({("A", True), ("B", False)}),
+    negated_goal = [
         frozenset({("B", True)}),
     ]
 
-    result = engine.resolution(clauses)
+    result = engine.set_of_support_resolution(
+        knowledge_base,
+        negated_goal,
+    )
+
+    assert result is True
+
+def test_set_of_support_resolution_records_steps():
+    engine = Resolution()
+
+    knowledge_base = [
+        frozenset({("A", False)}),
+        frozenset({
+            ("A", True),
+            ("B", False),
+        }),
+    ]
+
+    negated_goal = [
+        frozenset({("B", True)}),
+    ]
+
+    result = engine.set_of_support_resolution(
+        knowledge_base,
+        negated_goal,
+    )
 
     assert result is False
     assert len(engine.resolutionSteps) > 0
+    assert any(
+       len(step["resolvent"]) == 0
+       for step in engine.resolutionSteps
+    )
+
+def test_resolution_steps_record_the_pivot():
+    engine = Resolution()
+
+    knowledge_base = [
+        frozenset({("A", False)}),
+    ]
+
+    negated_goal = [
+        frozenset({("A", True)}),
+    ]
+
+    result = engine.set_of_support_resolution(
+        knowledge_base,
+        negated_goal,
+    )
+
+    assert result is False
+    assert len(engine.resolutionSteps) == 1
+
+    step = engine.resolutionSteps[0]
+
+    assert step["pivot"] == "A"
+    assert step["resolvent"] == frozenset()
