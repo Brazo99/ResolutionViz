@@ -241,7 +241,7 @@ export default function ResolutionPage() {
       const result = await checkSatisfiability(knowledgeBase, goal);
       setResolutionResult(result);
     } catch (err) {
-      console.error(err);
+      console.error("Error",err);
       setError(err.message || "An error occurred.");
     } finally {
       setIsLoading(false);
@@ -303,9 +303,9 @@ export default function ResolutionPage() {
   return (
     <>
       <Header onReset={handleResetAll}/>
-      <main className="fixed inset-x-0 top-[57px] bottom-0 overflow-hidden bg-base-200">
+      <main className="fixed inset-x-0 top-[57px] bottom-0 overflow-hidden bg-base-300">
         <div className="grid h-full grid-cols-[500px_minmax(0,1fr)]">
-          <aside className="grid h-full min-h-0 grid-rows-[auto_1fr_auto_auto] gap-3 overflow-hidden border-r border-slate-800 bg-base-100 p-5">
+          <aside className="grid h-full min-h-0 grid-rows-[auto_1fr_auto_auto] gap-3 overflow-hidden border-r border-base-300 bg-base-200 p-5">
             <KBToolbar
               onImport={handleImportKB}
               onExport={handleExportKB}
@@ -348,7 +348,7 @@ export default function ResolutionPage() {
             />
           </aside>
 
-          <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-base-200 p-5">
+          <section className="grid h-full grid-rows-[1fr] gap-5 overflow-hidden bg-base-300 p-5">
             <div className="min-h-0">
               <ResolutionPanel
                 result={resolutionResult}

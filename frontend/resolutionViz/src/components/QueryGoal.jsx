@@ -41,7 +41,10 @@ export default function QueryGoal({
             text-sm
             text-base-content
             outline-none
-            placeholder:text-base-content/30
+            border
+            border-base-300
+            bg-base-100
+            placeholder:text-base-content/40
             ${disabled ? "opacity-50 cursor-not-allowed" : ""}
           `}
         />

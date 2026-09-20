@@ -18,7 +18,7 @@ export default function AnnotationsPanel({
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100">
       {/* Header */}
-      <div className="shrink-0 border-b border-slate-800 px-4 py-3">
+      <div className="shrink-0 border-b border-base-300 px-4 py-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-base-content">
             Annotations
@@ -77,6 +77,7 @@ export default function AnnotationsPanel({
 
       {/* Editor */}
       <TextEditor
+        classname="bg-base-200"
         value={value}
         onChange={onChange}
         disabled={disabled}

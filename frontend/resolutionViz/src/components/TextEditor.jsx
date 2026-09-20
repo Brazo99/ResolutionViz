@@ -65,7 +65,7 @@ export default function TextEditor({value, onChange, placeholder, errorLine = nu
   return (
     <div
       ref={editorRef}
-      className="h-full min-h-0 flex-1 overflow-y-auto bg-base-300"
+      className="h-full min-h-0 flex-1 overflow-y-auto bg-base-200"
     >
       <div className="flex min-h-full">
 
