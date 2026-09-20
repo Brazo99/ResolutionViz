@@ -187,3 +187,14 @@ def test_goal_negation_is_used_by_resolution():
         len(step["resolvent"]) == 0
         for step in body["steps"]
     )
+
+def test_goal_must_contain_exactly_one_character():
+    response = client.post(
+        "/checkSatisfiability",
+        json={
+            "formula": ["A"],
+            "goal": "AB"
+        }
+    )
+
+    assert response.status_code == 422
