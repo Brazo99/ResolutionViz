@@ -1,6 +1,6 @@
 # ResolutionViz
 
-**ResolutionViz** is an interactive web-based visualization tool for **propositional-logic resolution**. It is designed as an educational application that makes the resolution process easier to understand by transforming logical formulas into clauses and visually demonstrating how resolution derives a contradiction or determines satisfiability.
+**ResolutionViz** is an interactive web-based visualization tool for **propositional-logic resolution**. It is designed as an educational application that makes the resolution process easier to understand by transforming logical formulas into clauses and visually demonstrating how resolution derives a contradiction or determines whether the resulting clause set is satisfiable.
 
 The application combines a **Python/FastAPI backend** for parsing and solving propositional formulas with a **React frontend** for interactive visualization of the resolution process.
 
@@ -28,6 +28,7 @@ The application combines a **Python/FastAPI backend** for parsing and solving pr
 * [API](#api)
 * [Resolution Visualization](#resolution-visualization)
 * [Project Design](#project-design)
+* [Documentation](#documentation)
 * [Development](#development)
 * [Testing](#testing)
 * [Contributing](#contributing)
@@ -42,7 +43,31 @@ ResolutionViz provides a visual representation of the **propositional resolution
 Instead of displaying only the final result, the application exposes the intermediate stages of the reasoning process:
 
 ```text
-Logical Formulas --> Lexer --> Parser --> AST --> CNF Conversion --> Clauses --> Set-of-Support Resolution --> Resolution Steps --> Interactive Graph
+Logical Formulas
+       │
+       ▼
+     Lexer
+       │
+       ▼
+     Parser
+       │
+       ▼
+      AST
+       │
+       ▼
+  CNF Conversion
+       │
+       ▼
+    Clauses
+       │
+       ▼
+Set-of-Support Resolution
+       │
+       ▼
+ Resolution Steps
+       │
+       ▼
+Interactive Graph
 ```
 
 This allows users to see not only **whether a goal follows from a knowledge base**, but also **how the resolution procedure reaches its conclusion**.
@@ -54,9 +79,9 @@ This allows users to see not only **whether a goal follows from a knowledge base
 ### Logical Formula Editor
 
 * Enter a knowledge base as multiple formulas.
-* Enter a separate query/goal.
+* Enter a separate query or goal.
 * Validate formulas while editing.
-* Display syntax errors and the corresponding input line.
+* Display syntax errors and their corresponding input positions.
 * Support propositional variables and logical operators.
 
 ### Formula Processing
@@ -75,14 +100,14 @@ ResolutionViz includes a complete logical-processing pipeline:
 
 ### Resolution Engine
 
-The backend implements a **set-of-support resolution strategy**.
+The backend implements a **Set-of-Support Resolution strategy**.
 
 The solver:
 
 1. Takes the knowledge base.
 2. Negates the goal.
 3. Converts the resulting formulas into CNF.
-4. Extracts clauses ordered by the goal/targert.
+4. Extracts clauses.
 5. Uses the negated goal as the initial support.
 6. Generates resolvents.
 7. Tracks the derivation of new clauses.
@@ -90,7 +115,7 @@ The solver:
 
 ### Interactive Proof Visualization
 
-The frontend visualizes resolution as a graph using React Flow.
+The frontend visualizes resolution as a graph using **React Flow**.
 
 The graph can show:
 
@@ -105,7 +130,7 @@ The graph can show:
 
 Users can inspect the resolution process incrementally.
 
-Playback controls allow the user to:
+Playback controls allow users to:
 
 * Move forward through resolution steps.
 * Move backward through steps.
@@ -122,7 +147,7 @@ The interface supports annotations that can be used while studying or demonstrat
 
 ResolutionViz includes light and dark themes with persistent theme selection.
 
-The interface uses a consistent design system across:
+The interface maintains a consistent design across:
 
 * Formula editing
 * Query input
@@ -135,7 +160,7 @@ The interface uses a consistent design system across:
 
 ## How It Works
 
-ResolutionViz follows the standard resolution-refutation approach.
+ResolutionViz follows the standard **resolution-refutation** approach.
 
 Given a knowledge base:
 
@@ -149,13 +174,13 @@ $$
 G
 $$
 
-the system attempts to determine whether:
+the system investigates whether:
 
 $$
 KB \models G
 $$
 
-Instead of directly proving the goal, resolution works by assuming the negation of the goal:
+Instead of directly proving the goal, resolution works by considering the negation of the goal:
 
 $$
 KB \land \neg G
@@ -169,7 +194,7 @@ $$
 \Box
 $$
 
-If the empty clause is derived, a contradiction has been found, demonstrating that:
+If the empty clause is derived, a contradiction has been found in the knowledge base together with the negated goal. This establishes:
 
 $$
 KB \models G
@@ -177,11 +202,11 @@ $$
 
 ---
 
-## Resolution Process
+# Resolution Process
 
-The resolution engine follows this general pipeline:
+The resolution engine follows the following pipeline.
 
-### 1. Parse the Input
+## 1. Parse the Input
 
 The backend tokenizes and parses each logical formula into an abstract syntax tree.
 
@@ -193,11 +218,11 @@ For example:
 
 is transformed into an internal AST representation.
 
-### 2. Combine the Knowledge Base
+## 2. Combine the Knowledge Base
 
 Multiple formulas entered by the user are combined into a single logical expression representing the knowledge base.
 
-### 3. Negate the Goal
+## 3. Negate the Goal
 
 The query is negated before resolution.
 
@@ -213,23 +238,29 @@ becomes:
 !S
 ```
 
-### 4. Convert to CNF
+The solver therefore works with:
+
+$$
+KB \land \neg S
+$$
+
+## 4. Convert to CNF
 
 The backend performs the required logical transformations:
 
 ```text
-Iff elimination
-      ↓
+Biconditional elimination
+          ↓
 Implication elimination
-      ↓
-Negation pushing
-      ↓
+          ↓
+Negation propagation
+          ↓
 Distribution
-      ↓
+          ↓
 Conjunctive Normal Form
 ```
 
-### 5. Extract Clauses
+## 5. Extract Clauses
 
 The CNF expression is converted into a collection of clauses.
 
@@ -237,45 +268,42 @@ A clause is internally represented using literals such as:
 
 ```python
 frozenset({
-    ("A", False),
-    ("B", True)
+    ("A", True),
+    ("B", False)
 })
 ```
 
 which corresponds to:
 
 $$
-A \lor \neg B
+\neg A \lor B
 $$
 
-### 6. Apply Set-of-Support Resolution
+Each literal consists of:
 
-ResolutionViz uses the **set-of-support (SOS) strategy** to guide the resolution process.
+* A variable name.
+* A Boolean polarity indicating whether the literal is positive or negated.
 
-The purpose of the SOS strategy is to restrict resolution to clauses that are relevant to the negated goal. Instead of resolving every possible pair of clauses, the algorithm maintains a distinction between:
+## 6. Apply Set-of-Support Resolution
+
+ResolutionViz uses the **Set-of-Support (SOS) strategy** to guide the resolution process.
+
+The purpose of the SOS strategy is to restrict resolution to clauses that are relevant to the negated goal.
+
+The algorithm maintains two conceptual groups:
 
 * **Usable clauses** — clauses originating from the knowledge base.
-* **Support clauses** — clauses derived from the negated goal and subsequent resolution steps.
+* **Support clauses** — the negated goal and clauses derived from it through resolution.
 
-The resolution process is therefore directed toward proving the original goal by attempting to derive a contradiction from:
-
-$$
-KB \land \neg G
-$$
-
----
-
-#### Initial Sets
-
-After CNF conversion, the clauses are divided into two conceptual sets.
-
-Given:
+The resolution process is therefore directed toward finding a contradiction from:
 
 $$
 KB \land \neg G
 $$
 
-the initial configuration is:
+### Initial Sets
+
+After CNF conversion, the clauses are divided conceptually as follows:
 
 ```text
 Knowledge Base Clauses
@@ -283,10 +311,11 @@ Knowledge Base Clauses
         ▼
    Usable Clauses
 
+
 Negated Goal
         │
         ▼
-  Support Clauses
+   Support Clauses
 ```
 
 For example, if the goal is:
@@ -301,19 +330,17 @@ the negated goal becomes:
 !S
 ```
 
-The initial support set therefore contains:
+and the initial support contains:
 
 ```text
 [!S]
 ```
 
-while the clauses obtained from the knowledge base form the usable set.
+while clauses obtained from the knowledge base form the usable set.
 
----
+### Selecting Clauses
 
-#### Selecting Clauses
-
-At each iteration, the resolution engine selects a clause from the support set and attempts to resolve it with compatible clauses from the usable set and previously derived clauses.
+At each iteration, the resolution engine selects a clause from the support set and attempts to resolve it with compatible clauses from the usable set or previously derived clauses.
 
 Two clauses are compatible when they contain complementary literals.
 
@@ -321,6 +348,7 @@ For example:
 
 ```text
 [S]
+
 [!S, D, L]
 ```
 
@@ -331,7 +359,7 @@ S
 !S
 ```
 
-so they can be resolved using `S` as the pivot.
+and can therefore be resolved using `S` as the pivot.
 
 The resulting resolvent is:
 
@@ -347,18 +375,16 @@ $$
 
 The newly generated clause becomes part of the support set.
 
----
+### Resolution Rule
 
-#### Resolution Rule
-
-The basic propositional resolution rule can be expressed as:
+The propositional resolution rule can be expressed as:
 
 $$
 \frac{A \lor P \qquad B \lor \neg P}
      {A \lor B}
 $$
 
-where \(P\) is the **pivot literal**.
+where $P$ is the **pivot literal**.
 
 For example:
 
@@ -366,7 +392,7 @@ $$
 S
 $$
 
-and
+and:
 
 $$
 \neg S \lor D \lor L
@@ -378,7 +404,7 @@ $$
 D \lor L
 $$
 
-The pivot used for this operation is:
+The pivot is:
 
 ```text
 S
@@ -386,9 +412,7 @@ S
 
 ResolutionViz records this information so that the frontend can display the derivation.
 
----
-
-#### Maintaining the Support Set
+### Maintaining the Support Set
 
 Each newly derived resolvent is added to the support set.
 
@@ -400,13 +424,13 @@ Initial Support
       ▼
     [!S]
       │
-      │ resolve
+      │ resolution
       ▼
-   [D, L]
+  [derived clause]
       │
-      │ resolve
+      │ resolution
       ▼
-   [D, ...]
+  [derived clause]
       │
       ▼
      ...
@@ -415,18 +439,14 @@ Initial Support
      [ ]
 ```
 
-This means that newly generated clauses can themselves participate in later resolution operations.
-
 The process continues until one of two conditions is reached:
 
 1. The **empty clause** is derived.
 2. No new useful resolvents can be generated.
 
----
+### Empty Clause
 
-#### Empty Clause
-
-The empty clause is represented internally as an empty clause:
+The empty clause is represented internally as:
 
 ```text
 []
@@ -444,6 +464,7 @@ For example:
 
 ```text
 [P]
+
 [!P]
 ```
 
@@ -453,7 +474,7 @@ resolve to:
 []
 ```
 
-because all literals are eliminated during resolution.
+because the complementary literals cancel and no literals remain.
 
 When the empty clause is derived from:
 
@@ -469,9 +490,7 @@ $$
 
 In ResolutionViz, the empty clause represents the terminating node of a successful refutation proof.
 
----
-
-#### Resolution Trace
+### Resolution Trace
 
 The backend records every resolution operation so that the frontend can reconstruct the proof.
 
@@ -487,129 +506,42 @@ Each step contains information similar to:
 }
 ```
 
-This trace allows ResolutionViz to distinguish between:
+The trace identifies:
 
-* The clauses being resolved
-* The pivot used
-* The resulting clause
-* The order in which clauses were derived
+* The clauses being resolved.
+* The pivot used.
+* The resulting clause.
+* The order in which clauses were derived.
 
 The frontend uses this information to construct the interactive proof graph.
 
----
+### Proof Traceback
 
-#### Example
+Resolution may generate intermediate steps that are not required for the final contradiction.
 
-Consider the knowledge base:
-
-```text
-((A | T) -> Q) & ((Q & E) -> D)
-((D & L) -> S)
-A
-E
-L
-```
-
-with:
-
-```text
-Goal: S
-```
-
-The solver first adds the negated goal:
-
-```text
-!S
-```
-
-The relevant clause from the knowledge base can be represented as:
-
-```text
-[!S, D, L]
-```
-
-The first resolution operation is therefore:
-
-```text
-[!S]
-[!S, D, L]
-```
-
-More precisely, after converting the negated goal into the clause representation used by the resolution engine, the complementary literal pairing is used to produce the appropriate resolvent.
-
-A typical derivation can then continue by resolving newly derived clauses with clauses containing complementary literals.
-
-The important property of the SOS strategy is that **newly derived clauses are introduced through the support set and drive subsequent resolution** rather than blindly resolving every possible pair of clauses.
-
----
-
-#### Why Set-of-Support Is Used
-
-A naive resolution procedure could attempt to resolve every possible pair of clauses. As the number of clauses increases, this can create a large number of unnecessary resolution operations.
-
-The set-of-support strategy provides a way to focus the search.
-
-The intuition is:
-
-```text
-Knowledge Base
-      │
-      │ provides facts/rules
-      ▼
-Usable Clauses
-      ▲
-      │
-   Resolution
-      │
-      ▼
-Support Set
-      │
-      ▼
- Derived Clauses
-      │
-      ▼
-  Contradiction?
-```
-
-Because the support set originates from the negated goal, the resulting proof search is directed toward finding a contradiction relevant to that goal.
-
----
-
-#### Proof Traceback
-
-ResolutionViz also keeps track of the dependencies between derived clauses.
-
-After the empty clause is found, the complete resolution trace may contain steps that are not required for the final proof.
-
-The backend can therefore perform a **traceback** from the empty clause to identify the clauses and resolution steps that contributed to the contradiction.
+After the empty clause is found, ResolutionViz can trace the proof backwards from the empty clause and identify the resolution steps that contributed to its derivation.
 
 Conceptually:
 
 ```text
-              [ ]
-               ▲
-               │
-          [A, B, ...]
-          /          \
-         /            \
-      [A]             [!A, B]
-       ▲                  ▲
-       │                  │
-    earlier             earlier
-     steps               steps
+             [ ]
+              ▲
+              │
+        [A, B, ...]
+          ▲      ▲
+          │      │
+        [A]   [!A, B]
+          ▲      ▲
+          │      │
+       earlier  earlier
+        steps    steps
 ```
 
-The traceback process works backward from the empty clause and follows its parent clauses until it reaches the initial clauses.
+The traceback process follows parent clauses backwards until it reaches the clauses that initiated the proof.
 
-This produces a smaller proof containing the resolution steps necessary for the final contradiction.
+This produces a reduced proof containing the resolution steps required for the final contradiction.
 
-The frontend can then use this reduced proof when presenting the resolution visualization.
-
----
-
-#### Summary of the SOS Algorithm
-
-The overall process can be summarized as:
+### Summary of the SOS Algorithm
 
 ```text
 1. Start with KB ∧ ¬G
@@ -651,39 +583,39 @@ The overall process can be summarized as:
   Contradiction  Search stops
 ```
 
-For ResolutionViz, every important operation in this process is recorded as part of the resolution trace. This makes the algorithm suitable not only for automated theorem proving, but also for **interactive visualization and educational demonstration**.
+For ResolutionViz, the important operations are recorded as part of the resolution trace. This makes the algorithm suitable for both automated theorem proving and **interactive educational visualization**.
 
-### 7. Visualize the Proof
+## 7. Visualize the Proof
 
 The React application transforms the resolution trace into a graph.
 
-The graph allows the user to follow the derivation step by step.
+The graph allows users to follow the derivation step by step.
 
 ---
 
-## System Architecture
+# System Architecture
 
 ResolutionViz is divided into two major applications:
 
 ```text
 ┌──────────────────────────────────────────────┐
-│                  ResolutionViz               │
-├───────────────────────┬──────────────────────┤
-│                       │                      │
-│       Frontend        │       Backend        │
-│                       │                      │
-│ React + Vite          │ Python + FastAPI     │
-│ Tailwind CSS          │ Lexer                │
-│ DaisyUI               │ Parser               │
-│ React Flow            │ AST                  │
-│ Lucide React          │ CNF Converter        │
-│                       │ Clause Engine        │
-│                       │ Resolution Engine    │
-│                       │                      │
-└───────────────────────┴──────────────────────┘
+│                  ResolutionViz               |
+├────────────────────────┬─────────────────────┤
+│                        │                     │
+│       Frontend         │       Backend       │
+│                        │                     │
+│ React + Vite           │ Python + FastAPI    │
+│ JavaScript             │ Lexer               │
+│ Tailwind CSS           │ Parser              │
+│ DaisyUI                │ AST                 │
+│ React Flow             │ CNF Converter       │
+│ Lucide React           | Clause Engine       │
+│                        │ Resolution Engine   │
+│                        │                     │
+└────────────────────────┴─────────────────────┘
 ```
 
-### Frontend
+## Frontend
 
 The frontend is responsible for:
 
@@ -696,8 +628,9 @@ The frontend is responsible for:
 * Graph rendering
 * Annotations
 * Theme management
+* KB management where you can create different Knowledge Bases with different scenario.
 
-### Backend
+## Backend
 
 The backend is responsible for:
 
@@ -713,21 +646,21 @@ The backend is responsible for:
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Frontend
+## Frontend
 
-| Technology   | Purpose                            |
-| ------------ | ---------------------------------- |
-| React        | User interface                     |
-| Vite         | Frontend development/build tooling |
-| JavaScript   | Application language               |
-| Tailwind CSS | Styling                            |
-| DaisyUI      | UI components/theme utilities      |
-| React Flow   | Resolution graph visualization     |
-| Lucide React | Icons                              |
+| Technology   | Purpose                                |
+| ------------ | -------------------------------------- |
+| React        | User interface                         |
+| Vite         | Frontend development and build tooling |
+| JavaScript   | Application language                   |
+| Tailwind CSS | Styling                                |
+| DaisyUI      | UI components and theme utilities      |
+| React Flow   | Resolution graph visualization         |
+| Lucide React | Icons                                  |
 
-### Backend
+## Backend
 
 | Technology | Purpose                     |
 | ---------- | --------------------------- |
@@ -737,9 +670,17 @@ The backend is responsible for:
 | Pydantic   | Request/response validation |
 | Setuptools | Python packaging            |
 
+## Documentation
+
+| Technology          | Purpose                                  |
+| ------------------- | ---------------------------------------- |
+| MkDocs              | Documentation generation                 |
+| Material for MkDocs | Documentation theme                      |
+| mkdocstrings        | API documentation from Python docstrings |
+
 ---
 
-## Project Structure
+# Project Structure
 
 The project is organized into separate frontend and backend applications.
 
@@ -750,7 +691,8 @@ resviz/
 │   │
 │   ├── api/
 │   │   ├── main.py
-│   │   └── solve.py
+│   │   ├── solve.py
+│   │   └── ...
 │   │
 │   ├── logicEngine/
 │   │   ├── lexer.py
@@ -760,21 +702,27 @@ resviz/
 │   │   ├── clauses.py
 │   │   ├── resolution.py
 │   │   └── services.py
-│   │
+│   │── docs/
+    │   ├── api.md
+    │   └── logic-engine.md
 │   └── pyproject.toml
+│   ├── mkdocs.yml
+├── frontend/
+│   │
+│   └── resolutionViz/
+│       │
+│       ├── src/
+│       │   ├── api/
+│       │   ├── components/
+│       │   ├── pages/
+│       │   └── utils/
+│       │
+│       ├── package.json
+│       └── vite.config.js
 │
-└── frontend/
-    │
-    └── resolutionViz/
-        │
-        ├── src/
-        │   ├── api/
-        │   ├── components/
-        │   ├── pages/
-        │   └── utils/
-        │
-        ├── package.json
-        └── vite.config.js
+├
+│
+└── README.md
 ```
 
 ---
@@ -785,7 +733,7 @@ resviz/
 
 Make sure the following are installed:
 
-* Python 3.11+ recommended
+* Python 3.11+
 * Node.js
 * npm
 * Git
@@ -799,12 +747,10 @@ npm --version
 git --version
 ```
 
----
-
 ## Clone the Repository
 
 ```bash
-git clone https://gitlab.cs.uct.ac.za/blyble001/resviz
+git clone https://gitlab.cs.uct.ac.za/blyble001/resviz.git
 cd resviz
 ```
 
@@ -812,13 +758,13 @@ cd resviz
 
 # Backend Setup
 
-Navigate to the backend directory:
+Navigate to the backend:
 
 ```bash
 cd backend
 ```
 
-Create a virtual environment:
+Create a virtual environment.
 
 ### Windows
 
@@ -839,9 +785,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install the backend dependencies.
-
-If the project dependencies are defined in `pyproject.toml`:
+Install the backend dependencies:
 
 ```bash
 pip install -e .
@@ -903,8 +847,6 @@ FastAPI's interactive API documentation is available at:
 http://127.0.0.1:8000/docs
 ```
 
----
-
 ## Start the Frontend
 
 From:
@@ -925,7 +867,7 @@ Vite will provide a local development URL, typically:
 http://localhost:5173
 ```
 
-Open that address in a browser.
+Open the displayed address in a browser.
 
 ---
 
@@ -949,7 +891,7 @@ The typical workflow is:
 7. Explore resolution graph
 ```
 
-### Knowledge Base
+## Knowledge Base
 
 Enter one formula per line.
 
@@ -963,7 +905,7 @@ E
 L
 ```
 
-### Goal
+## Goal
 
 Enter:
 
@@ -971,7 +913,7 @@ Enter:
 S
 ```
 
-### Run the Solver
+## Run the Solver
 
 The application sends the knowledge base and goal to the FastAPI backend.
 
@@ -997,12 +939,12 @@ ResolutionViz supports propositional formulas using the following operators.
 | -------- | -------- | --------- | -- | -- |
 | `!`      | NOT      | `!A`      |    |    |
 | `&`      | AND      | `A & B`   |    |    |
-| `\|`      | OR       | `A \| B`   |    |    |
+| `\| `    | OR       | `A \| B`  |
 | `->`     | IMPLIES  | `A -> B`  |    |    |
 | `<->`    | IFF      | `A <-> B` |    |    |
 | `(` `)`  | Grouping | `(A & B)` |    |    |
 
-Variables are represented using uppercase and lower single letters:
+Variables are represented using uppercase letters:
 
 ```text
 A
@@ -1065,27 +1007,37 @@ with the goal:
 S
 ```
 
-ResolutionViz negates the goal:
-
-```text
-!S
-```
-
-and constructs:
+ResolutionViz considers:
 
 ```text
 KB ∧ !S
 ```
 
-After conversion to clauses, the resolution process can begin.
+After conversion to clauses, the proof search begins.
 
-An example resolution step may contain:
+A resolution step can contain:
 
 ```text
 Clause 1: [S]
+
 Clause 2: [!S, D, L]
+
 Pivot: S
+
 Resolvent: [D, L]
+```
+
+The complementary literals are:
+
+```text
+S
+!S
+```
+
+and resolving them produces:
+
+```text
+[D, L]
 ```
 
 The frontend visualizes these relationships as nodes and edges in the proof graph.
@@ -1102,18 +1054,35 @@ $$
 \Box
 $$
 
-and therefore a contradiction has been found.
+and therefore a contradiction has been found in $KB \land \neg S$.
 
 ---
 
 # API
 
-The backend exposes a FastAPI interface for interacting with the resolution engine. The API separates individual formula-processing stages from the complete resolution pipeline, allowing the frontend and other clients to reuse specific processing operations independently.
+The backend exposes a FastAPI interface for interacting with the resolution engine.
 
-POST /checkSatisfiability: Runs the complete knowledge-base and goal resolution pipeline.
+The API separates individual formula-processing stages from the complete resolution pipeline, allowing the frontend and other clients to reuse specific processing operations independently.
 
-Example request:
+## Endpoints
 
+| Method | Endpoint               | Description                          |
+| ------ | ---------------------- | ------------------------------------ |
+| `POST` | `/checkSatisfiability` | Run the complete resolution pipeline |
+| `POST` | `/checkFormula`        | Validate a single formula            |
+| `POST` | `/checkFormulas`       | Validate multiple formulas           |
+| `POST` | `/tokens`              | Tokenize a formula                   |
+| `POST` | `/parseFormula`        | Parse a formula into an AST          |
+| `POST` | `/cnf`                 | Convert a formula to CNF             |
+| `POST` | `/clauses`             | Extract clauses from a formula       |
+
+## `POST /checkSatisfiability`
+
+Runs the complete knowledge-base and goal resolution pipeline.
+
+### Request
+
+```json
 {
   "formula": [
     "A",
@@ -1121,119 +1090,24 @@ Example request:
   ],
   "goal": "B"
 }
+```
 
 The endpoint:
 
-Combines the knowledge-base formulas.
-Parses the knowledge base and goal.
-Converts both to CNF.
-Extracts clauses.
-Applies set-of-support resolution using the negated goal.
-Returns the resolution trace and result.
+1. Combines the knowledge-base formulas.
+2. Parses the formulas.
+3. Negates the goal.
+4. Converts the formulas to CNF.
+5. Extracts clauses.
+6. Applies Set-of-Support Resolution.
+7. Returns the resolution trace and result.
 
-The response includes:
-
-Combined formula
-Goal
-Tokens
-AST
-CNF
-Clauses
-Resolution steps
-Resolution result
-Satisfiability status
-Individual Formula Processing Endpoints
-
-ResolutionViz also exposes reusable endpoints for individual stages of the logical-processing pipeline.
-
-POST /tokens: Tokenizes a single formula.
-
-Example:
-
-{
-  "formula": "A -> B"
-}
-
-Returns the lexer tokens produced from the formula.
-
-POST /parseFormula: Parses a formula and returns its abstract syntax tree.
-
-Example:
-
-{
-  "formula": "A & B"
-}
-
-Returns a serialized AST representing the logical structure.
-
-POST /cnf: Converts a formula into conjunctive normal form.
-
-Example:
-
-{
-  "formula": "A -> B"
-}
-
-Returns the CNF representation of the formula.
-
-POST /clauses: Converts a formula to CNF and extracts its clause representation.
-
-Example:
-
-{
-  "formula": "A & !B"
-}
-
-Returns the clauses used by the resolution engine.
-
-POST /checkFormula: Validates a single formula without running the resolution algorithm.
-
-The response identifies whether the formula is valid and, when invalid, provides an error message and error position.
-
-Example:
-
-{
-  "formula": "A @ B"
-}
-POST /checkFormulas: Validates multiple formulas in one request while preserving their input order.
-
-Example:
-
-{
-  "formulas": [
-    "A & B",
-    "A @ B",
-    "(A | B"
-  ]
-}
-
-The endpoint returns an individual validation result for each formula.
-
-## Solve Endpoint
-
-The solver accepts a knowledge base and a goal.
-
-Conceptually, the request has the following structure:
-
-```json
-{
-  "formula": [
-    "A",
-    "A -> B",
-    "B -> C"
-  ],
-  "goal": "C"
-}
-```
-
-The response contains information used by the frontend to display the resolution process.
-
-A response includes fields such as:
+### Response
 
 ```json
 {
   "formula": [],
-  "goal": "C",
+  "goal": "B",
   "tokens": [],
   "ast": {},
   "cnf": {},
@@ -1244,13 +1118,97 @@ A response includes fields such as:
 }
 ```
 
+## `POST /checkFormula`
 
-## API Documentation
+Validates a single formula without running resolution.
 
-When the backend is running, FastAPI automatically provides interactive API documentation:
+Example:
+
+```json
+{
+  "formula": "A | B"
+}
+```
+
+The response identifies whether the formula is valid and, when invalid, provides an error message and error position.
+
+## `POST /checkFormulas`
+
+Validates multiple formulas independently while preserving input order.
+
+Example:
+
+```json
+{
+  "formulas": [
+    "A & B",
+    "(A | B"
+  ]
+}
+```
+
+## `POST /tokens`
+
+Tokenizes a single formula.
+
+Example:
+
+```json
+{
+  "formula": "A -> B"
+}
+```
+
+## `POST /parseFormula`
+
+Parses a formula and returns its serialized abstract syntax tree.
+
+Example:
+
+```json
+{
+  "formula": "A & B"
+}
+```
+
+## `POST /cnf`
+
+Converts a formula into conjunctive normal form.
+
+Example:
+
+```json
+{
+  "formula": "A -> B"
+}
+```
+
+## `POST /clauses`
+
+Converts a formula to CNF and extracts its clause representation.
+
+Example:
+
+```json
+{
+  "formula": "A & !B"
+}
+```
+
+## Interactive API Documentation
+
+When the backend is running, FastAPI automatically provides interactive API documentation.
+
+Swagger UI:
 
 ```text
 http://127.0.0.1:8000/docs
+```
+
+ReDoc:
+
+```text
+http://127.0.0.1:8000/redoc
 ```
 
 ---
@@ -1259,23 +1217,23 @@ http://127.0.0.1:8000/docs
 
 The proof graph is implemented using **React Flow**.
 
-Each resolution clause can be represented as a graph node, while resolution relationships are represented by edges.
+Each resolution clause is represented as a graph node, while resolution relationships are represented by edges.
 
 Conceptually:
 
 ```text
-       [!S]
-         │
-         │ resolve on S
-         ▼
+       [S]
+        │
+        │ resolve on S
+        ▼
      [D ∨ L]
-         │
-         │
-         ▼
-     [L ∨ ...]
-         │
-         ▼
-         [ ]
+        │
+        │
+        ▼
+   [derived clause]
+        │
+        ▼
+       [ ]
 ```
 
 The visualization is designed to make the logical dependency between clauses explicit.
@@ -1289,15 +1247,15 @@ This allows users to observe:
 ```text
 Initial Clauses
       ↓
-Step 1
+    Step 1
       ↓
-Step 2
+    Step 2
       ↓
-Step 3
+    Step 3
       ↓
-...
+     ...
       ↓
-Empty Clause
+ Empty Clause
 ```
 
 Rather than displaying the entire proof immediately, the interface can reveal the derivation incrementally.
@@ -1310,13 +1268,13 @@ This is particularly useful for demonstrations and teaching.
 
 ResolutionViz separates **logical computation** from **visual presentation**.
 
-### Backend
+## Backend
 
 The backend answers:
 
-> What are the logical consequences of these formulas?
+> What logical consequences can be established from these formulas?
 
-### Frontend
+## Frontend
 
 The frontend answers:
 
@@ -1330,63 +1288,130 @@ This separation makes the system easier to maintain and allows the resolution en
 
 ```text
 Input Formula
-     │
-     ▼
-   Lexer
-     │
-     ▼
-   Parser
-     │
-     ▼
-    AST
-     │
-     ▼
+      │
+      ▼
+    Lexer
+      │
+      ▼
+    Parser
+      │
+      ▼
+     AST
+      │
+      ▼
 Logical Transformations
-     │
-     ├── IFF elimination
-     ├── Implication elimination
-     ├── Negation propagation
-     └── Distribution
-     │
-     ▼
-    CNF
-     │
-     ▼
+      │
+      ├── IFF elimination
+      ├── Implication elimination
+      ├── Negation propagation
+      └── Distribution
+      │
+      ▼
+     CNF
+      │
+      ▼
    Clauses
-     │
-     ▼
+      │
+      ▼
 Set-of-Support Resolution
-     │
-     ▼
- Resolution Trace
-     │
-     ▼
-   API Response
+      │
+      ▼
+Resolution Trace
+      │
+      ▼
+ API Response
 ```
-
----
 
 ## Frontend Pipeline
 
 ```text
 API Response
-     │
-     ▼
+      │
+      ▼
 ResolutionPage
-     │
-     ├── KnowledgeBase
-     ├── QueryGoal
-     ├── KBToolbar
-     ├── SatisfiabilityButton
-     ├── ResolutionPanel
-     └── AnnotationsPanel
-             │
-             ▼
+      │
+      ├── KnowledgeBase
+      ├── QueryGoal
+      ├── KBToolbar
+      ├── SatisfiabilityButton
+      ├── ResolutionPanel
+      └── AnnotationsPanel
+              │
+              ▼
        ResolutionGraph
-             │
-             ▼
+              │
+              ▼
           React Flow
 ```
+
+---
+
+# Documentation
+
+ResolutionViz includes developer and user documentation built with **MkDocs**, **Material for MkDocs**, and **mkdocstrings**.
+
+The documentation covers:
+
+* Getting started
+* Application usage
+* Propositional logic concepts
+* CNF conversion
+* Clause extraction
+* Resolution
+* Set-of-Support Resolution
+* System architecture
+* REST API
+* Logic engine implementation
+
+## Documentation Structure
+
+```text
+docs/
+├── api.md
+└── logic-engine.md
+```
+
+## Install Documentation Dependencies
+
+From the project root:
+
+```bash
+pip install mkdocs-material "mkdocstrings[python]"
+```
+
+## Preview Documentation
+
+Run:
+
+```bash
+mkdocs serve
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
+
+MkDocs automatically rebuilds the documentation while editing.
+
+## Build Documentation
+
+To generate the static documentation site:
+
+```bash
+mkdocs build
+```
+
+The generated website is placed in:
+
+```text
+site/
+```
+
+The `site/` directory is a build artifact and should not be committed to the repository.
+
+The API and logic-engine reference documentation use Python docstrings through `mkdocstrings`, keeping developer documentation closely connected to the source code.
 
 ---
 
@@ -1412,8 +1437,6 @@ Preview the production build:
 npm run preview
 ```
 
----
-
 ## Backend
 
 Start FastAPI with automatic reload:
@@ -1422,7 +1445,7 @@ Start FastAPI with automatic reload:
 uvicorn api.main:api --reload
 ```
 
-The `api` object is exposed from:
+The FastAPI application object is exposed from:
 
 ```text
 api.main
@@ -1434,73 +1457,60 @@ api.main
 
 ResolutionViz contains automated tests for both the backend and frontend.
 
-Backend Tests
+## Backend Tests
 
-The Python test suite uses pytest and covers:
+The Python test suite uses **pytest** and covers areas including:
 
-FastAPI endpoint behaviour
-Formula validation
-Lexer/tokenization
-Parser behaviour
-CNF conversion
-Clause extraction
-Resolution behaviour
-Set-of-support resolution
-Resolution-step and pivot tracking
-Service-layer behaviour
-Error handling
-Reusable API endpoints
-Batch formula validation
+* FastAPI endpoint behaviour
+* Formula validation
+* Lexer/tokenization
+* Parser behaviour
+* CNF conversion
+* Clause extraction
+* Resolution behaviour
+* Set-of-Support Resolution
+* Resolution-step and pivot tracking
+* Service-layer behaviour
+* Error handling
+* Reusable API endpoints
+* Batch formula validation
 
-Run the backend tests from the project root:
+Run the backend tests from the backend project root:
 
+```bash
 python -m pytest Tests -v
+```
 
-Frontend Tests
+## Frontend Tests
 
-The frontend uses Vitest and React Testing Library.
+The frontend uses **Vitest** and **React Testing Library**.
 
 Frontend tests cover:
 
-API client requests
-Query goal behaviour
-Query goal validation feedback
-Satisfiability button behaviour
-Graph/clause formatting utilities
+* API client requests
+* Query goal behaviour
+* Query goal validation feedback
+* Satisfiability button behaviour
+* Graph and clause formatting utilities
 
 Run the frontend tests from:
+
+```text
 frontend/resolutionViz/
+```
+
 with:
+
+```bash
 npm test
-
-
----
-
-### Visualization
-
-* Improved automatic graph layout for large proofs
-* Better handling of very large proof trees
-* Clause highlighting
-* Animated resolution operations
-* More detailed edge labels
-* Improved navigation through long proofs
-* Proof minimization and explanation
-
-### Resolution Engine
-
-* More efficient clause selection
-* Additional resolution strategies
-* Improved proof minimization
-* Better handling of redundant clauses
-* Performance improvements for larger formulas
+```
 
 ---
-
 # Contributing
 
 # License
 
-This project is currently developed as an educational/software engineering project.
+This project is currently developed as an educational and software-engineering project.
 
 ---
 
@@ -1510,13 +1520,17 @@ ResolutionViz uses the following open-source technologies:
 
 * React
 * Vite
-* FastAPI
 * Python
+* FastAPI
 * Tailwind CSS
 * DaisyUI
 * React Flow
 * Lucide React
 * Uvicorn
+* Pydantic
+* MkDocs
+* Material for MkDocs
+* mkdocstrings
 
 ---
 
