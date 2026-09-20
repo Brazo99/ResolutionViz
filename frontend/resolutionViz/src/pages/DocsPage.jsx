@@ -164,11 +164,15 @@ export default function DocsPage() {
           </h2>
 
           <p className="mt-4 leading-relaxed text-base-content/70">
-            Variables are uppercase letters{" "}
+            Variables are letters — uppercase{" "}
             <span className="font-mono text-primary">P</span>,{" "}
             <span className="font-mono text-primary">Q</span>,{" "}
-            <span className="font-mono text-primary">R</span> and operators
-            are combined with parentheses.
+            <span className="font-mono text-primary">R</span>{" "}
+            or lowercase{" "}
+            <span className="font-mono text-primary">p</span>,{" "}
+            <span className="font-mono text-primary">q</span>,{" "}
+            <span className="font-mono text-primary">r</span>{" "}
+            — and operators are combined with parentheses.
           </p>
 
           <div className="mt-4 overflow-hidden rounded-lg border border-base-300">
@@ -185,31 +189,31 @@ export default function DocsPage() {
                 <tr className="border-t border-base-300">
                   <td className="px-4 py-3 text-primary">~</td>
                   <td className="px-4 py-3 font-sans">negation</td>
-                  <td className="px-4 py-3">~P</td>
+                  <td className="px-4 py-3">~P&nbsp; / &nbsp;~p</td>
                 </tr>
 
                 <tr className="border-t border-base-300">
                   <td className="px-4 py-3 text-primary">&amp;</td>
                   <td className="px-4 py-3 font-sans">conjunction</td>
-                  <td className="px-4 py-3">P &amp; Q</td>
+                  <td className="px-4 py-3">P &amp; Q&nbsp; / &nbsp;p &amp; q</td>
                 </tr>
 
                 <tr className="border-t border-base-300">
                   <td className="px-4 py-3 text-primary">|</td>
                   <td className="px-4 py-3 font-sans">disjunction</td>
-                  <td className="px-4 py-3">P | Q</td>
+                  <td className="px-4 py-3">P | Q&nbsp; / &nbsp;p | q</td>
                 </tr>
 
                 <tr className="border-t border-base-300">
                   <td className="px-4 py-3 text-primary">-&gt;</td>
                   <td className="px-4 py-3 font-sans">implication</td>
-                  <td className="px-4 py-3">P -&gt; Q</td>
+                  <td className="px-4 py-3">P -&gt; Q&nbsp; / &nbsp;p -&gt; q</td>
                 </tr>
 
                 <tr className="border-t border-base-300">
                   <td className="px-4 py-3 text-primary">&lt;-&gt;</td>
                   <td className="px-4 py-3 font-sans">biconditional</td>
-                  <td className="px-4 py-3">P &lt;-&gt; Q</td>
+                  <td className="px-4 py-3">P &lt;-&gt; Q&nbsp; / &nbsp;p &lt;-&gt; q</td>
                 </tr>
               </tbody>
             </table>
@@ -223,9 +227,65 @@ export default function DocsPage() {
           </h2>
 
           <p className="mt-4 leading-relaxed text-base-content/70">
-            The toolbar at the top of the left panel lets you create, rename,
-            load, and delete knowledge bases. You can also export the current
-            knowledge base to a text file and import one back in.
+            The toolbar at the top of the left panel lets you manage your
+            knowledge bases and files.
+          </p>
+
+          <ul className="mt-4 list-disc space-y-2 pl-6 leading-relaxed text-base-content/70">
+            <li>
+              <span className="font-semibold text-base-content">
+                KB dropdown
+              </span>{" "}
+              — click the knowledge-base button to see all saved KBs.
+              Selecting one loads its formulas and annotations into the
+              editor.
+            </li>
+
+            <li>
+              <span className="font-semibold text-base-content">Rename</span>{" "}
+              — click the KB name field and type a new name. The name is saved
+              when the field loses focus.
+            </li>
+
+            <li>
+              <span className="font-semibold text-base-content">New KB</span>{" "}
+              — create a fresh knowledge base with empty formulas and
+              annotations.
+            </li>
+
+            <li>
+              <span className="font-semibold text-base-content">Delete</span>{" "}
+              — remove a saved KB from the dropdown. If it is the current KB,
+              the editor is cleared.
+            </li>
+
+            <li>
+              <span className="font-semibold text-base-content">Import</span>{" "}
+              — load formulas from a{" "}
+              <span className="font-mono text-primary">.txt</span> or{" "}
+              <span className="font-mono text-primary">.kb</span> file.
+            </li>
+
+            <li>
+              <span className="font-semibold text-base-content">Export</span>{" "}
+              — save the current knowledge base as a{" "}
+              <span className="font-mono text-primary">.txt</span> file for
+              sharing or backup.
+            </li>
+          </ul>
+        </section>
+
+        {/* 8 */}
+        <section className="mt-12">
+          <h2 className="text-2xl font-bold uppercase tracking-wide md:text-3xl">
+            8. Reset
+          </h2>
+
+          <p className="mt-4 leading-relaxed text-base-content/70">
+            The <span className="font-semibold text-base-content">Reset</span>{" "}
+            button in the top right of the app clears every saved knowledge
+            base, all annotations, and the current editor contents. Use it when
+            you want to start from a completely clean state.
           </p>
         </section>
 
