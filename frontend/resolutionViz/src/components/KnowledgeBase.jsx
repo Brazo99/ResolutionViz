@@ -138,8 +138,8 @@ export default function KnowledgeBase({ value, onChange, disabled = false }) {
         overflow-hidden
         rounded-xl
         border
-        border-slate-800
-        bg-slate-950
+        border-base-300 
+        bg-base-100
       "
     >
       {/* Header */}
@@ -150,17 +150,17 @@ export default function KnowledgeBase({ value, onChange, disabled = false }) {
           items-center
           justify-between
           border-b
-          border-slate-800
+          border-base-300
           px-4
           py-3
         "
       >
-        <h2 className="text-sm font-semibold text-slate-200">
+        <h2 className="text-sm font-semibold text-base-content">
           Knowledgebase (Facts)
         </h2>
 
         {isLoading && (
-          <span className="loading loading-spinner loading-xs text-slate-500" />
+          <span className="loading loading-spinner loading-xs text-base-content/50"/>
         )}
       </div>
 
@@ -201,14 +201,14 @@ export default function KnowledgeBase({ value, onChange, disabled = false }) {
                 gap-3
                 rounded-md
                 border
-                border-red-500/30
+                border-error/30
                 border-l-4
-                border-l-red-500
-                bg-red-950/60
+                border-l-error
+                bg-error/10
                 p-3
                 font-mono
                 text-xs
-                text-red-300
+                text-error
                 shadow-lg
                 backdrop-blur-sm
               "
@@ -242,7 +242,7 @@ export default function KnowledgeBase({ value, onChange, disabled = false }) {
 
               {/* Error message */}
               <div className="min-w-0 flex-1">
-                <span className="mb-0.5 block font-bold text-red-400">
+                <span className="mb-0.5 block font-bold text-error">
                   Invalid formula
                   {errorLine ? ` (Line ${errorLine})` : ""}
                 </span>
@@ -261,9 +261,9 @@ export default function KnowledgeBase({ value, onChange, disabled = false }) {
                 }}
                 className="
                   shrink-0
-                  text-red-400/70
+                  text-error/70
                   transition-colors
-                  hover:text-red-300
+                  hover:text-error
                 "
                 type="button"
                 aria-label="Dismiss error"

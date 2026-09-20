@@ -34,7 +34,7 @@ def tokenizer(knowledgeBase: str) -> List[str]:
         ("NOT", r"!"),
         ("IFF", r"<->"),
         ("OR", r"\|"),
-        ("VARIABLE", r"[A-Z]")
+        ("VARIABLE", r"[A-Za-z]")
     ]
 
     # Combine to produce one regex

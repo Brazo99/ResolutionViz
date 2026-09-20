@@ -26,6 +26,26 @@ router = APIRouter()
 
 async def solve_endpoint(request: FormulaRequest):
     """Run the complete KB + negated goal resolution pipeline"""
+    """
+    Solve a propositional logic query using resolution.
+
+    This endpoint accepts a knowledge base and a goal, processes the
+    formulas into clauses, applies Set-of-Support Resolution using the
+    negated goal, and returns the resulting resolution trace and
+    satisfiability information.
+
+    Args:
+        request (FormulaRequest):
+            The request containing the knowledge base formulas and the
+            goal to be evaluated.
+
+    Returns:
+        dict:
+            A response containing the original formula and goal, tokens,
+            abstract syntax tree, CNF representation, clauses, resolution
+            steps, the final result, and whether the resulting clause set
+            is satisfiable.
+    """
     try:
         formula = services.combine_knowledge_base(request.formula)
         result = services.solve_formula(formula, request.goal)
