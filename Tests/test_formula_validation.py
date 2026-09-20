@@ -92,7 +92,7 @@ def test_check_formula_accepts_lowercase_variable():
 
     assert body["valid"] is True
     assert body["error"] is None
-    assert body["error_position"] == 0
+    assert body["error_position"] is None
 
 def test_check_formula_rejects_empty_formula():
     response = client.post(

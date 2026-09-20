@@ -22,4 +22,14 @@ describe("QueryGoal", () => {
     render(<QueryGoal value="A" onChange={vi.fn()} disabled />);
     expect(screen.getByRole("textbox")).toBeDisabled();
   });
+
+  it("shows an error when the query goal contains more than one character", () => {
+    render(<QueryGoal value="AB" onChange={vi.fn()} />);
+
+    expect(
+      screen.getByRole("alert")
+    ).toHaveTextContent(
+      "The query goal must contain exactly one character."
+    );
+  });
 });
