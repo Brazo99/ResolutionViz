@@ -1108,7 +1108,106 @@ and therefore a contradiction has been found.
 
 # API
 
-The backend exposes a FastAPI interface for interacting with the resolution engine.
+The backend exposes a FastAPI interface for interacting with the resolution engine. The API separates individual formula-processing stages from the complete resolution pipeline, allowing the frontend and other clients to reuse specific processing operations independently.
+
+POST /checkSatisfiability: Runs the complete knowledge-base and goal resolution pipeline.
+
+Example request:
+
+{
+  "formula": [
+    "A",
+    "A -> B"
+  ],
+  "goal": "B"
+}
+
+The endpoint:
+
+Combines the knowledge-base formulas.
+Parses the knowledge base and goal.
+Converts both to CNF.
+Extracts clauses.
+Applies set-of-support resolution using the negated goal.
+Returns the resolution trace and result.
+
+The response includes:
+
+Combined formula
+Goal
+Tokens
+AST
+CNF
+Clauses
+Resolution steps
+Resolution result
+Satisfiability status
+Individual Formula Processing Endpoints
+
+ResolutionViz also exposes reusable endpoints for individual stages of the logical-processing pipeline.
+
+POST /tokens: Tokenizes a single formula.
+
+Example:
+
+{
+  "formula": "A -> B"
+}
+
+Returns the lexer tokens produced from the formula.
+
+POST /parseFormula: Parses a formula and returns its abstract syntax tree.
+
+Example:
+
+{
+  "formula": "A & B"
+}
+
+Returns a serialized AST representing the logical structure.
+
+POST /cnf: Converts a formula into conjunctive normal form.
+
+Example:
+
+{
+  "formula": "A -> B"
+}
+
+Returns the CNF representation of the formula.
+
+POST /clauses: Converts a formula to CNF and extracts its clause representation.
+
+Example:
+
+{
+  "formula": "A & !B"
+}
+
+Returns the clauses used by the resolution engine.
+
+POST /checkFormula: Validates a single formula without running the resolution algorithm.
+
+The response identifies whether the formula is valid and, when invalid, provides an error message and error position.
+
+Example:
+
+{
+  "formula": "A @ B"
+}
+POST /checkFormulas: Validates multiple formulas in one request while preserving their input order.
+
+Example:
+
+{
+  "formulas": [
+    "A & B",
+    "A @ B",
+    "(A | B"
+  ]
+}
+
+The endpoint returns an individual validation result for each formula.
 
 ## Solve Endpoint
 
@@ -1333,9 +1432,46 @@ api.main
 
 # Testing
 
-The resolution engine should be tested independently from the frontend.
+ResolutionViz contains automated tests for both the backend and frontend.
 
-Important areas for testing include:
+Backend Tests
+
+The Python test suite uses pytest and covers:
+
+FastAPI endpoint behaviour
+Formula validation
+Lexer/tokenization
+Parser behaviour
+CNF conversion
+Clause extraction
+Resolution behaviour
+Set-of-support resolution
+Resolution-step and pivot tracking
+Service-layer behaviour
+Error handling
+Reusable API endpoints
+Batch formula validation
+
+Run the backend tests from the project root:
+
+python -m pytest Tests -v
+
+Frontend Tests
+
+The frontend uses Vitest and React Testing Library.
+
+Frontend tests cover:
+
+API client requests
+Query goal behaviour
+Query goal validation feedback
+Satisfiability button behaviour
+Graph/clause formatting utilities
+
+Run the frontend tests from:
+frontend/resolutionViz/
+with:
+npm test
 
 
 ---
