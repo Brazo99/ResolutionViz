@@ -8,6 +8,9 @@ export default function ResolutionPanel({ result, isLoading = false }) {
   const steps = result?.steps ?? [];
   const totalSteps = steps.length;
 
+  // Playback controls should only be active when a result exists.
+  const hasResult = result !== null && result !== undefined;
+
   const raw = result?.result;
   const isSatisfiable =
     typeof raw === "boolean"
@@ -36,17 +39,21 @@ export default function ResolutionPanel({ result, isLoading = false }) {
   }, [result, totalSteps, isSatisfiable]);
 
   const handleBack = () => {
+    if (!hasResult || isLoading) return;
+
     setIsPlaying(false);
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
   const handleForward = () => {
+    if (!hasResult || isLoading) return;
+
     setIsPlaying(false);
     setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
   };
 
   const handlePlay = () => {
-    if (totalSteps === 0) return;
+    if (!hasResult || isLoading || totalSteps === 0) return;
 
     if (currentStep >= totalSteps) {
       setCurrentStep(0);
@@ -59,7 +66,7 @@ export default function ResolutionPanel({ result, isLoading = false }) {
 
   // Auto-advance playback.
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || !hasResult || isLoading) return;
 
     if (currentStep >= totalSteps) {
       setIsPlaying(false);
@@ -72,14 +79,22 @@ export default function ResolutionPanel({ result, isLoading = false }) {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [isPlaying, currentStep, totalSteps]);
+  }, [
+    isPlaying,
+    currentStep,
+    totalSteps,
+    hasResult,
+    isLoading,
+  ]);
 
   const currentStepLabel =
-    currentStep === 0
-      ? "Initial clauses"
-      : currentStep >= totalSteps
-        ? "Proof complete"
-        : `Proof step ${steps[currentStep - 1]?.step ?? currentStep}`;
+    !hasResult
+      ? "No result"
+      : currentStep === 0
+        ? "Initial clauses"
+        : currentStep >= totalSteps
+          ? "Proof complete"
+          : `Proof step ${steps[currentStep - 1]?.step ?? currentStep}`;
 
   const atEnd = totalSteps === 0 || currentStep >= totalSteps;
 
@@ -90,7 +105,10 @@ export default function ResolutionPanel({ result, isLoading = false }) {
     }
   }, [atEnd, isSatisfiable]);
 
-  const showResult = hasCompleted && isSatisfiable !== null;
+  const showResult =
+    hasCompleted && isSatisfiable !== null && hasResult;
+
+  const controlsDisabled = isLoading || !hasResult;
 
   return (
     <section className="flex h-full flex-col gap-2 rounded-2xl border border-base-300 bg-base-100 p-5">
@@ -119,13 +137,15 @@ export default function ResolutionPanel({ result, isLoading = false }) {
           canGoBack={currentStep > 0}
           canGoForward={currentStep < totalSteps}
           isComplete={atEnd}
-          disabled={isLoading}
+          disabled={controlsDisabled}
         />
       </div>
 
       {showResult && (
         <div className="pt-2">
-          <VerificationResult isSatisfiable={isSatisfiable} />
+          <VerificationResult
+            isSatisfiable={isSatisfiable}
+          />
         </div>
       )}
     </section>
