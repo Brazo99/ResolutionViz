@@ -17,8 +17,8 @@ def test_check_formula_accepts_valid_formula():
 
     assert body["valid"] is True
     assert body["error"] is None
-    assert body["position"] is None
-    assert len(body["tokens"]) > 0
+    assert body["error_position"] is None
+    assert "tokens" not in body
 
 def test_check_formula_accepts_implication():
     response = client.post(
@@ -44,7 +44,7 @@ def test_check_formula_rejects_invalid_character():
     body = response.json()
 
     assert body["valid"] is False
-    assert body["position"] == 2
+    assert body["error_position"] == 2
     assert "Unexpected character" in body["error"]
 
 def test_check_formula_rejects_invalid_syntax():
@@ -60,7 +60,7 @@ def test_check_formula_rejects_invalid_syntax():
     body = response.json()
 
     assert body["valid"] is False
-    assert body["position"] is not None
+    assert body["error_position"] is not None
     assert body["error"] is not None
 
 def test_check_formula_rejects_missing_parenthesis():
@@ -76,9 +76,9 @@ def test_check_formula_rejects_missing_parenthesis():
     body = response.json()
 
     assert body["valid"] is False
-    assert body["position"] is not None
+    assert body["error_position"] is not None
 
-def test_check_formula_rejects_lowercase_variable():
+def test_check_formula_accepts_lowercase_variable():
     response = client.post(
         "/checkFormula",
         json={
@@ -90,8 +90,9 @@ def test_check_formula_rejects_lowercase_variable():
 
     body = response.json()
 
-    assert body["valid"] is False
-    assert body["position"] == 0
+    assert body["valid"] is True
+    assert body["error"] is None
+    assert body["error_position"] is None
 
 def test_check_formula_rejects_empty_formula():
     response = client.post(
@@ -101,7 +102,7 @@ def test_check_formula_rejects_empty_formula():
         },
     )
 
-    assert response.status_code in (400, 422)
+    assert response.status_code == 422
 
 def test_check_formula_requires_formula_field():
     response = client.post(
@@ -109,4 +110,4 @@ def test_check_formula_requires_formula_field():
         json={},
     )
 
-    assert response.status_code in (400, 422)
+    assert response.status_code == 422

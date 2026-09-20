@@ -13,7 +13,7 @@ def test_root_endpoint_is_available():
     assert "message" in response.json()
 
 
-def test_valid_formula_request():
+def test_valid_formula_request_runs_complete_pipeline():
     response = client.post(
         "/checkSatisfiability",
         json={
@@ -37,6 +37,10 @@ def test_valid_formula_request():
     assert "clauses" in body
     assert "steps" in body
     assert "result" in body
+    assert "is_satisfiable" in body
+    assert body["goal"] == "B"
+    assert body["formula"] == "(A) & (A -> B)"
+    assert body["result"] is False
 
 
 def test_empty_formula_list_is_rejected():
@@ -82,7 +86,61 @@ def test_invalid_dsl_input_is_rejected():
         }
     )
 
-    assert response.status_code in (400, 422)
+    assert response.status_code == 400
+
+def test_tokens_endpoint_returns_lexer_output():
+    response = client.post(
+        "/tokens", 
+        json={"formula": "A -> B"})
+    
+    assert response.status_code == 200
+    body = response.json()
+    assert body["formula"] == "A -> B"
+    assert [token["type"] for token in body["tokens"]] == ["VARIABLE", "IMPLIES", "VARIABLE"]
+
+
+def test_parse_endpoint_returns_ast():
+    response = client.post(
+        "/parseFormula", 
+        json={"formula": "A & B"})
+    
+    assert response.status_code == 200
+    ast = response.json()["ast"]
+    assert ast["type"] == "And"
+    assert ast["left"]["type"] == "Variable"
+    assert ast["left"]["name"] == "A"
+    assert ast["right"]["type"] == "Variable"
+    assert ast["right"]["name"] == "B"
+
+
+def test_cnf_endpoint_returns_cnf_ast():
+    response = client.post(
+        "/cnf", 
+        json={"formula": "A -> B"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["formula"] == "A -> B"
+    assert body["cnf"]["type"] == "Or"
+
+
+def test_clauses_endpoint_returns_extracted_clauses():
+    response = client.post(
+        "/clauses", 
+        json={"formula": "A & !B"})
+    assert response.status_code == 200
+    clauses = response.json()["clauses"]
+    assert [sorted(clause) for clause in clauses] == [[ ["A", False] ], [["B", True]]]
+
+
+def test_batch_formula_validation_preserves_input_order():
+    response = client.post(
+        "/checkFormulas",
+        json={"formulas": ["A & B", "A @ B", "(A | B"]},
+    )
+    assert response.status_code == 200
+    results = response.json()["results"]
+    assert [item["formula"] for item in results] == ["A & B", "A @ B", "(A | B"]
+    assert [item["valid"] for item in results] == [True, False, False]
 
 
 def test_multiple_knowledge_base_statements_are_accepted():
@@ -102,10 +160,11 @@ def test_multiple_knowledge_base_statements_are_accepted():
     body = response.json()
 
     assert body["goal"] == "B"
-    assert body["formula"] == "(A) & (A -> B) & !B"
+    assert body["formula"] == "(A) & (A -> B)"
+    assert body["result"] is False
 
 
-def test_goal_is_negated_before_resolution():
+def test_goal_negation_is_used_by_resolution():
     response = client.post(
         "/checkSatisfiability",
         json={
@@ -122,4 +181,20 @@ def test_goal_is_negated_before_resolution():
     body = response.json()
 
     assert body["goal"] == "B"
-    assert "!B" in body["formula"]
+    assert body["result"] is False
+
+    assert any(
+        len(step["resolvent"]) == 0
+        for step in body["steps"]
+    )
+
+def test_goal_must_contain_exactly_one_character():
+    response = client.post(
+        "/checkSatisfiability",
+        json={
+            "formula": ["A"],
+            "goal": "AB"
+        }
+    )
+
+    assert response.status_code == 422

@@ -19,7 +19,7 @@ class FormulaRequest(BaseModel):
         ...,
         description="Query Goal",
         examples=["A"],
-        min_length=1
+        min_length=1, max_length=1
     )
     
 class ASTResponse(BaseModel):
@@ -61,11 +61,43 @@ class SingleFormulaRequest(BaseModel):
         min_length=1,
     )
 
+class BatchFormulaRequest(BaseModel):
+    """Request model for validating multiple formulas independently."""
+    formulas: list[str] = Field(
+        ...,
+        description="Formulas to validate independently.",
+        examples=[["A & B", "A -> B", "A @ B"]],
+        min_length=1,
+    )
+
 class FormulaValidationResponse(BaseModel):
     """Response returned by the formula validation endpoint."""
     valid: bool
     error: str | None = None
     error_position: int | None = None
+
+class BatchFormulaValidationItem(FormulaValidationResponse):
+    formula: str
+
+class BatchFormulaValidationResponse(BaseModel):
+    results: List[BatchFormulaValidationItem]
+
+class TokensResponse(BaseModel):
+    formula: str
+    tokens: List[TokenResponse]
+
+class ParseResponse(BaseModel):
+    formula: str
+    ast: ASTResponse
+
+class CNFResponse(BaseModel):
+    formula: str
+    cnf: ASTResponse
+
+class ClausesResponse(BaseModel):
+    formula: str
+    cnf: ASTResponse
+    clauses: List[FrozenSet[Tuple[str, bool]]]
 
 # Response Model 
 class SolutionResponse(BaseModel):
