@@ -832,7 +832,7 @@ backend/
 run:
 
 ```bash
-uvicorn api.main:api --reload
+uvicorn api.main:app --reload
 ```
 
 The backend will normally be available at:
