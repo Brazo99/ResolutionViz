@@ -750,7 +750,7 @@ git --version
 ## Clone the Repository
 
 ```bash
-git clone https://gitlab.cs.uct.ac.za/blyble001/resviz.git
+git clone https://github.com/Brazo99/ResolutionViz.git
 cd resviz
 ```
 
